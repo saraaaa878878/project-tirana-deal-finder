@@ -1,0 +1,18 @@
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# notebooks
+.ipynb_checkpoints/
+
+# generated artifacts (regenerate from raw data)
+data/listings_clean.parquet
+models/*.joblib
+
+# secrets
+.env
+
+# os / editor
+.DS_Store
+.vscode/

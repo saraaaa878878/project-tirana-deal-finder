@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Tirana Deal Finder — find under-priced flats{% endblock %}
+
+{% macro deal_label(grade) -%}
+  {%- if grade == 'great' -%}Great deal
+  {%- elif grade == 'good' -%}Good deal
+  {%- elif grade == 'bad' -%}Market price
+  {%- else -%}No estimate{%- endif -%}
+{%- endmacro %}
+
+{% macro page_url(p) -%}
+?page={{ p }}
+{%- if filters.deal_grade %}&deal_grade={{ filters.deal_grade }}{% endif %}
+{%- if filters.bedrooms is not none %}&bedrooms={{ filters.bedrooms }}{% endif %}
+{%- if filters.min_price is not none %}&min_price={{ filters.min_price }}{% endif %}
+{%- if filters.max_price is not none %}&max_price={{ filters.max_price }}{% endif %}
+{%- if filters.min_sqm is not none %}&min_sqm={{ filters.min_sqm }}{% endif %}
+{%- if filters.max_sqm is not none %}&max_sqm={{ filters.max_sqm }}{% endif %}
+{%- endmacro %}
+
+{% block content %}
+<section class="hero">
+  <div class="wrap">
+    <span class="hero__eyebrow">Tirana housing market</span>
+    <h1 class="hero__title">Every flat priced. The <em>good deals</em> flagged.</h1>
+    <p class="hero__lead">
+      We trained a model on thousands of Tirana listings to estimate a fair price for
+      each one, then compared it to the asking price. Browse what's on the market and
+      see instantly which homes are priced below what they're worth.
+    </p>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat__n">{{ "{:,}".format(stats.total) }}</div>
+        <div class="stat__l">Listings analysed</div>
+      </div>
+      <div class="stat">
+        <div class="stat__n">&euro;{{ "{:,}".format(stats.median_ppsqm) }}</div>
+        <div class="stat__l">Median price / m&sup2;</div>
+      </div>
+      <div class="stat stat--accent">
+        <div class="stat__n">{{ "{:,}".format(stats.great_deals) }}</div>
+        <div class="stat__l">Great deals right now</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <form class="toolbar" method="get" action="{{ url_for('home') }}">
+    <div class="filters">
+      <div class="field">
+        <label class="field__label" for="f-grade">Deal</label>
+        <select id="f-grade" name="deal_grade">
+          <option value="">Any</option>
+          <option value="great" {{ 'selected' if filters.deal_grade == 'great' }}>Great deals</option>
+          <option value="good"  {{ 'selected' if filters.deal_grade == 'good' }}>Good deals</option>
+          <option value="bad"   {{ 'selected' if filters.deal_grade == 'bad' }}>Market price</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label" for="f-beds">Bedrooms</label>
+        <select id="f-beds" name="bedrooms">
+          <option value="">Any</option>
+          {% for b in bounds.bedroom_options %}
+          <option value="{{ b }}" {{ 'selected' if filters.bedrooms == b }}>{{ b }}+ bd</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label" for="f-minp">Min price &euro;</label>
+        <input id="f-minp" name="min_price" type="number" inputmode="numeric"
+               placeholder="{{ "{:,}".format(bounds.price_min) }}" value="{{ filters.min_price if filters.min_price is not none }}">
+      </div>
+      <div class="field">
+        <label class="field__label" for="f-maxp">Max price &euro;</label>
+        <input id="f-maxp" name="max_price" type="number" inputmode="numeric"
+               placeholder="{{ "{:,}".format(bounds.price_max) }}" value="{{ filters.max_price if filters.max_price is not none }}">
+      </div>
+      <div class="field">
+        <label class="field__label" for="f-mins">Min m&sup2;</label>
+        <input id="f-mins" name="min_sqm" type="number" inputmode="numeric"
+               placeholder="{{ bounds.sqm_min }}" value="{{ filters.min_sqm if filters.min_sqm is not none }}">
+      </div>
+      <div class="field">
+        <label class="field__label" for="f-maxs">Max m&sup2;</label>
+        <input id="f-maxs" name="max_sqm" type="number" inputmode="numeric"
+               placeholder="{{ bounds.sqm_max }}" value="{{ filters.max_sqm if filters.max_sqm is not none }}">
+      </div>
+      <div class="field filters__actions">
+        <button class="btn-solid" type="submit">Search</button>
+        <a class="btn-ghost" href="{{ url_for('home') }}">Reset</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="results-head">
+    <div class="results-head__count">{{ "{:,}".format(total) }} homes</div>
+    {% if total > 0 %}
+    <div class="results-head__meta">Page {{ page }} of {{ total_pages }}</div>
+    {% endif %}
+  </div>
+
+  {% if listings %}
+  <div class="listing-grid">
+    {% for l in listings %}
+    <article class="listing-card listing-card--{{ l.deal_grade }}">
+      <a class="listing-card__link" href="{{ url_for('listing_detail', listing_id=l.listing_id) }}">
+        <div class="listing-card__top">
+          <div class="listing-card__price">
+            {% if l.price_in_euro is not none %}&euro;{{ "{:,.0f}".format(l.price_in_euro) }}{% else %}Price n/a{% endif %}
+          </div>
+          <span class="deal-tag deal-tag--{{ l.deal_grade }}">
+            <span class="deal-tag__dot"></span>{{ deal_label(l.deal_grade) }}
+          </span>
+        </div>
+
+        <div class="listing-card__est">
+          {% if l.predicted_price %}
+            Est. &euro;{{ "{:,.0f}".format(l.predicted_price) }}
+            {% if l.gap_pct is not none and l.gap_pct > 0 %}&middot; <b>{{ l.gap_pct }}% below</b>
+            {% elif l.gap_pct is not none and l.gap_pct < 0 %}&middot; {{ (l.gap_pct * -1) | round(1) }}% above
+            {% endif %}
+          {% else %}Estimate unavailable{% endif %}
+        </div>
+
+        <div class="listing-card__addr">{{ l.address or 'Address not available' }}</div>
+
+        <ul class="specs">
+          <li><span class="specs__n">{{ l.square_meters | int if l.square_meters is not none else '-' }}</span><span class="specs__l">m&sup2;</span></li>
+          <li><span class="specs__n">{{ l.bedrooms | int if l.bedrooms is not none else '-' }}</span><span class="specs__l">bd</span></li>
+          <li><span class="specs__n">{{ l.bathrooms | int if l.bathrooms is not none else '-' }}</span><span class="specs__l">ba</span></li>
+          <li><span class="specs__n">{{ l.floor | int if l.floor is not none else '-' }}</span><span class="specs__l">fl</span></li>
+        </ul>
+      </a>
+    </article>
+    {% endfor %}
+  </div>
+
+  <nav class="pager" aria-label="Pagination">
+    <a class="pager__btn {{ 'pager__btn--disabled' if page <= 1 }}"
+       href="{{ page_url(page - 1) if page > 1 else '#' }}">&larr; Newer</a>
+    <span class="pager__status">{{ page }} / {{ total_pages }}</span>
+    <a class="pager__btn {{ 'pager__btn--disabled' if page >= total_pages }}"
+       href="{{ page_url(page + 1) if page < total_pages else '#' }}">Older &rarr;</a>
+  </nav>
+
+  {% else %}
+  <div class="empty">
+    <p class="empty__title">No homes match those filters</p>
+    <p>Try widening the price range or clearing a filter.</p>
+    <p><a class="btn-ghost" href="{{ url_for('home') }}">Reset all filters</a></p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

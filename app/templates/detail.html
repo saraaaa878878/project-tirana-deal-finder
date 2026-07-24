@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ "€{:,.0f}".format(listing.price_in_euro) if listing.price_in_euro is not none else "Listing" }} — Tirana Deal Finder{% endblock %}
+
+{% macro deal_label(grade) -%}
+  {%- if grade == 'great' -%}Great deal
+  {%- elif grade == 'good' -%}Good deal
+  {%- elif grade == 'bad' -%}Market price
+  {%- else -%}No estimate{%- endif -%}
+{%- endmacro %}
+
+{% block content %}
+<section class="wrap detail">
+  <a class="detail__back" href="{{ url_for('home') }}">&larr; All listings</a>
+
+  <div class="detail__grid detail__grid--{{ listing.deal_grade }}">
+    <!-- Left: the headline + the deal verdict -->
+    <div class="detail__main">
+      <span class="deal-tag deal-tag--{{ listing.deal_grade }}">
+        <span class="deal-tag__dot"></span>{{ deal_label(listing.deal_grade) }}
+      </span>
+
+      <h1 class="detail__price">
+        {% if listing.price_in_euro is not none %}&euro;{{ "{:,.0f}".format(listing.price_in_euro) }}{% else %}Price not available{% endif %}
+      </h1>
+      <p class="detail__addr">{{ listing.address or 'Address not available' }}</p>
+
+      <!-- The verdict: asking vs estimated -->
+      <div class="verdict">
+        <div class="verdict__row">
+          <span class="verdict__label">Asking price</span>
+          <span class="verdict__value">
+            {% if listing.price_in_euro is not none %}&euro;{{ "{:,.0f}".format(listing.price_in_euro) }}{% else %}&ndash;{% endif %}
+          </span>
+        </div>
+        <div class="verdict__row">
+          <span class="verdict__label">Our estimate</span>
+          <span class="verdict__value">
+            {% if listing.predicted_price %}&euro;{{ "{:,.0f}".format(listing.predicted_price) }}{% else %}Unavailable{% endif %}
+          </span>
+        </div>
+        <div class="verdict__row verdict__row--headline">
+          <span class="verdict__label">Verdict</span>
+          <span class="verdict__value verdict__value--{{ listing.deal_grade }}">
+            {% if listing.gap_pct is not none and listing.gap_pct > 0 %}
+              {{ listing.gap_pct }}% below estimate
+            {% elif listing.gap_pct is not none and listing.gap_pct < 0 %}
+              {{ (listing.gap_pct * -1) | round(1) }}% above estimate
+            {% elif listing.gap_pct is not none %}
+              Right at estimate
+            {% else %}
+              No estimate available
+            {% endif %}
+          </span>
+        </div>
+      </div>
+
+      {% if listing.description %}
+      <div class="detail__desc">
+        <h2 class="detail__h2">Description</h2>
+        <p>{{ listing.description }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Right: the facts -->
+    <aside class="detail__facts">
+      <h2 class="detail__h2">The facts</h2>
+      <dl class="facts">
+        <div class="facts__row"><dt>Size</dt><dd>{{ listing.square_meters | int if listing.square_meters is not none else '–' }} m&sup2;</dd></div>
+        <div class="facts__row"><dt>Bedrooms</dt><dd>{{ listing.bedrooms | int if listing.bedrooms is not none else '–' }}</dd></div>
+        <div class="facts__row"><dt>Bathrooms</dt><dd>{{ listing.bathrooms | int if listing.bathrooms is not none else '–' }}</dd></div>
+        <div class="facts__row"><dt>Floor</dt><dd>{{ listing.floor | int if listing.floor is not none else '–' }}</dd></div>
+        <div class="facts__row"><dt>Furnishing</dt><dd>{{ (listing.furnishing_status or 'unknown') | replace('_', ' ') | title }}</dd></div>
+        <div class="facts__row"><dt>Elevator</dt><dd>{{ 'Yes' if listing.has_elevator else 'No' }}</dd></div>
+        {% if listing.square_meters and listing.price_in_euro %}
+        <div class="facts__row"><dt>Price / m&sup2;</dt><dd>&euro;{{ "{:,.0f}".format(listing.price_in_euro / listing.square_meters) }}</dd></div>
+        {% endif %}
+      </dl>
+    </aside>
+  </div>
+</section>
+{% endblock %}

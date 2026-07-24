@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Market overview — Tirana Deal Finder{% endblock %}
+
+{% block content %}
+<section class="hero hero--compact">
+  <div class="wrap">
+    <span class="hero__eyebrow">Market overview</span>
+    <h1 class="hero__title">The Tirana market, <em>at a glance</em>.</h1>
+    <p class="hero__lead">
+      Where prices cluster, how they move with size, and how many listings are actually
+      worth a look — across {{ "{:,}".format(stats.total) }} homes.
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat__n">{{ "{:,}".format(stats.total) }}</div>
+        <div class="stat__l">Listings</div>
+      </div>
+      <div class="stat">
+        <div class="stat__n">&euro;{{ "{:,}".format(stats.median_price) }}</div>
+        <div class="stat__l">Median price</div>
+      </div>
+      <div class="stat">
+        <div class="stat__n">&euro;{{ "{:,}".format(stats.median_ppsqm) }}</div>
+        <div class="stat__l">Median / m&sup2;</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap analytics">
+  <div class="chart-grid">
+    <div class="chart-card chart-card--wide">
+      <h2 class="chart-card__title">Price distribution</h2>
+      <div class="chart-box"><canvas id="chartDistribution"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h2 class="chart-card__title">Median price by bedrooms</h2>
+      <div class="chart-box"><canvas id="chartBedrooms"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h2 class="chart-card__title">Deal breakdown</h2>
+      <div class="chart-box"><canvas id="chartGrades"></canvas></div>
+    </div>
+  </div>
+
+  <div class="map-card">
+    <h2 class="chart-card__title">Every listing, by asking price</h2>
+    <div id="map"></div>
+  </div>
+</section>
+
+<script>
+  // Data computed server-side by backend/stats.py, handed to the charts + map.
+  window.MARKET_STATS = {{ stats | tojson }};
+  window.MAP_POINTS = {{ points | tojson }};
+</script>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<!-- Leaflet + marker clustering -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<!-- Our wiring -->
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}

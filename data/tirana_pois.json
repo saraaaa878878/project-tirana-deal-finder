@@ -1,0 +1,38 @@
+{
+  "hospital": [
+    { "name": "QSUT - Spitali Nene Tereza", "lat": 41.340333, "lng": 19.834583 },
+    { "name": "Spitali Amerikan 1 (Rr. Ibrahim Rugova)", "lat": 41.32944, "lng": 19.81417 },
+    { "name": "Spitali Amerikan 2 (Iceberg)", "lat": 41.34833, "lng": 19.82833 },
+    { "name": "Spitali Ushtarak Qendror", "lat": 41.32583, "lng": 19.82056 },
+    { "name": "Spitali Obstetrik-Gjinekologjik Mbreteresha Geraldine", "lat": 41.33889, "lng": 19.83333 },
+    { "name": "Spitali i Traumes", "lat": 41.34028, "lng": 19.83417 },
+    { "name": "Hygeia Hospital Tirana", "lat": 41.37944, "lng": 19.81667 }
+  ],
+  "school": [
+    { "name": "Universiteti Politeknik i Tiranes (UPT)", "lat": 41.33061, "lng": 19.81889 },
+    { "name": "Universiteti i Tiranes (Rektorati)", "lat": 41.32556, "lng": 19.82250 },
+    { "name": "Universiteti Europian i Tiranes (UET)", "lat": 41.32750, "lng": 19.80722 },
+    { "name": "Universiteti Epoka", "lat": 41.32333, "lng": 19.76806 },
+    { "name": "Akademia e Studimeve te Aplikuara (ex-Marin Barleti)", "lat": 41.33444, "lng": 19.82944 },
+    { "name": "Shkolla e Mesme Sami Frasheri", "lat": 41.32222, "lng": 19.82083 },
+    { "name": "Liceu Artistik Jordan Misja", "lat": 41.33472, "lng": 19.81611 }
+  ],
+  "bank": [
+    { "name": "Banka e Shqiperise (Qendra)", "lat": 41.32583, "lng": 19.81917 },
+    { "name": "Raiffeisen Bank - Dega Qendrore", "lat": 41.32278, "lng": 19.81833 },
+    { "name": "BKT - Banka Kombetare Tregtare (Qendra)", "lat": 41.32778, "lng": 19.81861 },
+    { "name": "Intesa Sanpaolo Bank Albania (Qendra)", "lat": 41.32611, "lng": 19.81944 },
+    { "name": "Credins Bank (Qendra)", "lat": 41.32306, "lng": 19.81944 },
+    { "name": "OTP Bank Albania (Qendra)", "lat": 41.32694, "lng": 19.81806 }
+  ],
+  "park": [
+    { "name": "Parku i Madh (Parku Rinia/Liqeni Artificial)", "lat": 41.31056, "lng": 19.82250 },
+    { "name": "Parku i Liqenit Artificial", "lat": 41.30972, "lng": 19.82806 },
+    { "name": "Parku Rinia (Qender)", "lat": 41.32444, "lng": 19.81833 }
+  ],
+  "mall": [
+    { "name": "TEG - Tirana East Gate", "lat": 41.36000, "lng": 19.84500 },
+    { "name": "QTU - Qendra Tregtare Univers", "lat": 41.31667, "lng": 19.83583 },
+    { "name": "Tirana City Mall", "lat": 41.31417, "lng": 19.79417 }
+  ]
+}

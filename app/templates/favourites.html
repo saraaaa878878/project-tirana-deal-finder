@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_cards.html" import cards with context %}
+{% block title %}{{ t.my_favourites }} — TIRANA/41{% endblock %}
+
+{% block content %}
+<section class="saved-hero">
+  <div class="shell">
+    <span>{{ 'LISTA PERSONALE' if lang == 'sq' else 'PERSONAL COLLECTION' }}</span>
+    <h1>{{ t.my_favourites }}</h1>
+    <p>{{ current_user.name }}, {{ t.auth_sub|lower }}</p>
+  </div>
+</section>
+<section class="shell saved-content">
+  {% if listings %}
+    {{ cards(listings, t) }}
+  {% else %}
+    <div class="saved-empty">
+      <span>♡</span>
+      <h2>{{ t.empty_favourites }}</h2>
+      <a class="button button--acid" href="{{ url_for('listings') }}">{{ t.discover }} →</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/favourite.js') }}"></script>{% endblock %}

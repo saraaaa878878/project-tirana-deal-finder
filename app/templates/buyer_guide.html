@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ t.buyer_kit }} — TIRANA/41{% endblock %}
+
+{% block content %}
+<section class="guide-hero">
+  <div class="guide-hero__pattern"></div>
+  <div class="shell guide-hero__inner">
+    <p class="eyebrow"><span></span>{{ 'GUIDA E BLERËSIT · SHQIPËRI' if lang == 'sq' else 'BUYER GUIDE · ALBANIA' }}</p>
+    <h1>{{ t.documents_title }}</h1>
+    <p>{{ t.documents_lead }}</p>
+    <div class="guide-hero__meta"><strong>6</strong><span>{{ 'kontrolle thelbësore' if lang == 'sq' else 'essential checks' }}</span></div>
+  </div>
+</section>
+
+<section class="guide-content">
+  <div class="shell guide-layout">
+    <aside class="guide-aside">
+      <span>{{ 'CHECKLIST' }}</span>
+      <h2>{{ 'Nga kontrolli i parë te regjistrimi.' if lang == 'sq' else 'From first check to registration.' }}</h2>
+      <p>{{ 'Hap çdo hap për të parë dokumentet kryesore.' if lang == 'sq' else 'Open each step to see the key documents.' }}</p>
+    </aside>
+
+    <div class="guide-steps">
+      {% set steps_sq = [
+        ('Verifiko pronësinë','Certifikata e pronësisë, kartela e pasurisë dhe harta treguese nga ASHK. Kontrollo që pronari dhe të dhënat e pasurisë përputhen.'),
+        ('Kontrollo dokumentet e pronarit','Kartë identiteti, certifikatë familjare dhe pëlqimi i bashkëshortit ose bashkëshortes kur kërkohet.'),
+        ('Kontrollo dokumentet teknike','Leja e ndërtimit, leja e përdorimit dhe planimetria, veçanërisht për ndërtesat e reja.'),
+        ('Verifiko detyrimet financiare','Vërtetimi i detyrimeve vendore, taksat e pronës dhe çdo barrë hipotekore që lidhet me pasurinë.'),
+        ('Lexo kontratën noteriale','Kontrollo draft-kontratën, çmimin, mënyrën e pagesës, afatet dhe kushtet përpara firmosjes.'),
+        ('Regjistro pronësinë','Apliko për kalimin e pronësisë në ASHK dhe merr certifikatën e re në emrin e blerësit.')
+      ] %}
+      {% set steps_en = [
+        ('Verify ownership','Review the ownership certificate, property card and official map from ASHK. Confirm that the owner and property details match.'),
+        ('Check the owner documents','Review the identity card, family certificate and spousal consent when required.'),
+        ('Check technical documents','Review the building permit, occupancy permit and floor plan, especially for new buildings.'),
+        ('Verify financial obligations','Check local tax clearance, property taxes and any mortgage or legal burden attached to the property.'),
+        ('Read the notarial contract','Review the draft contract, price, payment method, deadlines and conditions before signing.'),
+        ('Register ownership','Apply for the ownership transfer at ASHK and receive the new certificate in the buyer’s name.')
+      ] %}
+      {% for title, copy in (steps_sq if lang == 'sq' else steps_en) %}
+      <details class="guide-step" {{ 'open' if loop.first }}>
+        <summary><span>{{ loop.index }}</span><h3>{{ title }}</h3><i>+</i></summary>
+        <div><p>{{ copy }}</p><b>{{ 'KONTROLLO' if lang == 'sq' else 'CHECK' }} ✓</b></div>
+      </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="shell legal-note">
+  <span>!</span>
+  <div><b>{{ 'Shënim i rëndësishëm' if lang == 'sq' else 'Important note' }}</b><p>{{ 'Ky informacion është orientues dhe nuk zëvendëson verifikimin nga një noter, jurist ose institucionet përkatëse.' if lang == 'sq' else 'This information is for general guidance and does not replace verification by a notary, lawyer or the relevant authorities.' }}</p></div>
+</section>
+{% endblock %}

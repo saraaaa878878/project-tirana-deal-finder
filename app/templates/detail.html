@@ -1,82 +1,108 @@
 {% extends "base.html" %}
-{% block title %}{{ "€{:,.0f}".format(listing.price_in_euro) if listing.price_in_euro is not none else "Listing" }} — Tirana Deal Finder{% endblock %}
+{% block title %}{{ "€{:,.0f}".format(listing.price_in_euro) if listing.price_in_euro is not none else t.listings }} — TIRANA/41{% endblock %}
 
 {% macro deal_label(grade) -%}
-  {%- if grade == 'great' -%}Great deal
-  {%- elif grade == 'good' -%}Good deal
-  {%- elif grade == 'bad' -%}Market price
-  {%- else -%}No estimate{%- endif -%}
+  {%- if grade == 'great' -%}{{ t.great_deal }}
+  {%- elif grade == 'good' -%}{{ t.good_deal }}
+  {%- elif grade == 'bad' -%}{{ t.market_price }}
+  {%- else -%}{{ t.no_estimate }}{%- endif -%}
 {%- endmacro %}
 
 {% block content %}
-<section class="wrap detail">
-  <a class="detail__back" href="{{ url_for('home') }}">&larr; All listings</a>
-
-  <div class="detail__grid detail__grid--{{ listing.deal_grade }}">
-    <!-- Left: the headline + the deal verdict -->
-    <div class="detail__main">
-      <span class="deal-tag deal-tag--{{ listing.deal_grade }}">
-        <span class="deal-tag__dot"></span>{{ deal_label(listing.deal_grade) }}
-      </span>
-
-      <h1 class="detail__price">
-        {% if listing.price_in_euro is not none %}&euro;{{ "{:,.0f}".format(listing.price_in_euro) }}{% else %}Price not available{% endif %}
-      </h1>
-      <p class="detail__addr">{{ listing.address or 'Address not available' }}</p>
-
-      <!-- The verdict: asking vs estimated -->
-      <div class="verdict">
-        <div class="verdict__row">
-          <span class="verdict__label">Asking price</span>
-          <span class="verdict__value">
-            {% if listing.price_in_euro is not none %}&euro;{{ "{:,.0f}".format(listing.price_in_euro) }}{% else %}&ndash;{% endif %}
-          </span>
-        </div>
-        <div class="verdict__row">
-          <span class="verdict__label">Our estimate</span>
-          <span class="verdict__value">
-            {% if listing.predicted_price %}&euro;{{ "{:,.0f}".format(listing.predicted_price) }}{% else %}Unavailable{% endif %}
-          </span>
-        </div>
-        <div class="verdict__row verdict__row--headline">
-          <span class="verdict__label">Verdict</span>
-          <span class="verdict__value verdict__value--{{ listing.deal_grade }}">
-            {% if listing.gap_pct is not none and listing.gap_pct > 0 %}
-              {{ listing.gap_pct }}% below estimate
-            {% elif listing.gap_pct is not none and listing.gap_pct < 0 %}
-              {{ (listing.gap_pct * -1) | round(1) }}% above estimate
-            {% elif listing.gap_pct is not none %}
-              Right at estimate
-            {% else %}
-              No estimate available
-            {% endif %}
-          </span>
-        </div>
-      </div>
-
-      {% if listing.description %}
-      <div class="detail__desc">
-        <h2 class="detail__h2">Description</h2>
-        <p>{{ listing.description }}</p>
-      </div>
-      {% endif %}
+{% set image = listing_image(listing) %}
+<section class="detail-page">
+  <div class="shell">
+    <div class="detail-topbar">
+      <a href="{{ url_for('listings') }}">← {{ t.all_listings }}</a>
+      <span>PROPERTY PASSPORT · #{{ listing.listing_id }}</span>
     </div>
 
-    <!-- Right: the facts -->
-    <aside class="detail__facts">
-      <h2 class="detail__h2">The facts</h2>
-      <dl class="facts">
-        <div class="facts__row"><dt>Size</dt><dd>{{ listing.square_meters | int if listing.square_meters is not none else '–' }} m&sup2;</dd></div>
-        <div class="facts__row"><dt>Bedrooms</dt><dd>{{ listing.bedrooms | int if listing.bedrooms is not none else '–' }}</dd></div>
-        <div class="facts__row"><dt>Bathrooms</dt><dd>{{ listing.bathrooms | int if listing.bathrooms is not none else '–' }}</dd></div>
-        <div class="facts__row"><dt>Floor</dt><dd>{{ listing.floor | int if listing.floor is not none else '–' }}</dd></div>
-        <div class="facts__row"><dt>Furnishing</dt><dd>{{ (listing.furnishing_status or 'unknown') | replace('_', ' ') | title }}</dd></div>
-        <div class="facts__row"><dt>Elevator</dt><dd>{{ 'Yes' if listing.has_elevator else 'No' }}</dd></div>
-        {% if listing.square_meters and listing.price_in_euro %}
-        <div class="facts__row"><dt>Price / m&sup2;</dt><dd>&euro;{{ "{:,.0f}".format(listing.price_in_euro / listing.square_meters) }}</dd></div>
+    <div class="detail-visual {{ 'has-photo' if image else 'is-placeholder' }}">
+      {% if image %}
+      <img src="{{ image }}" alt="{{ listing.address or t.address_missing }}">
+      {% else %}
+      <div class="detail-placeholder">
+        <span>TIRANA/41</span>
+        <svg viewBox="0 0 700 360" aria-hidden="true"><path d="M20 310V148l120-70 110 48L390 25l290 158v127M140 78v232m110-184v184M390 25v285m145-205v205"/><path d="M65 190h42m-42 60h42m76-70h40m-40 62h40m76-118h48m-48 73h48m74-67h55m-55 75h55m50-35h58m-58 70h58"/></svg>
+        <small>41.3275° N · 19.8187° E</small>
+      </div>
+      {% endif %}
+      <span class="deal-chip deal-chip--{{ listing.deal_grade }}">{{ deal_label(listing.deal_grade) }}</span>
+    </div>
+
+    <div class="detail-layout">
+      <div class="detail-main">
+        <div class="detail-heading">
+          <div>
+            <span>{{ t.asking_price }}</span>
+            <h1>{% if listing.price_in_euro is not none %}€{{ "{:,.0f}".format(listing.price_in_euro) }}{% else %}—{% endif %}</h1>
+            <p>{{ listing.address or t.address_missing }}</p>
+          </div>
+          <div class="detail-actions">
+            <button class="favourite-button {{ 'is-saved' if is_favourite }}" type="button"
+                    data-favourite data-url="{{ url_for('toggle_favourite', listing_id=listing.listing_id) }}"
+                    data-save="{{ t.save }}" data-saved="{{ t.saved }}">
+              <b>{{ '♥' if is_favourite else '♡' }}</b><span>{{ t.saved if is_favourite else t.save }}</span>
+            </button>
+            <button class="compare-button compare-button--large" type="button" data-compare
+                    data-id="{{ listing.listing_id }}" data-address="{{ listing.address or t.address_missing }}"
+                    data-price="{{ listing.price_in_euro or 0 }}" data-sqm="{{ listing.square_meters or 0 }}"
+                    data-grade="{{ deal_label(listing.deal_grade) }}"
+                    data-url="{{ url_for('listing_detail', listing_id=listing.listing_id) }}">{{ t.compare }} +</button>
+          </div>
+        </div>
+
+        <div class="passport-signal passport-signal--{{ listing.deal_grade }}">
+          <div>
+            <span>{{ t.our_estimate }}</span>
+            <b>{% if listing.predicted_price %}€{{ "{:,.0f}".format(listing.predicted_price) }}{% else %}—{% endif %}</b>
+          </div>
+          <div>
+            <span>{{ t.verdict }}</span>
+            <b>
+              {% if listing.gap_pct is not none and listing.gap_pct > 0 %}
+              ↓ {{ listing.gap_pct }}% {{ t.below }}
+              {% elif listing.gap_pct is not none and listing.gap_pct < 0 %}
+              ↑ {{ (listing.gap_pct * -1)|round(1) }}% {{ t.above }}
+              {% else %}{{ t.market_price }}{% endif %}
+            </b>
+          </div>
+          <div class="passport-score"><span>DEAL SCORE</span><strong>{{ deal_score(listing) if deal_score(listing) is not none else '—' }}</strong><small>/100</small></div>
+        </div>
+
+        {% if listing.description %}
+        <div class="detail-description"><span>{{ t.description }}</span><p>{{ listing.description }}</p></div>
         {% endif %}
-      </dl>
-    </aside>
+      </div>
+
+      <aside class="detail-facts">
+        <span>{{ t.facts }}</span>
+        <dl>
+          <div><dt>{{ t.size }}</dt><dd>{{ listing.square_meters|int if listing.square_meters is not none else '—' }} m²</dd></div>
+          <div><dt>{{ t.bedrooms }}</dt><dd>{{ listing.bedrooms|int if listing.bedrooms is not none else '—' }}</dd></div>
+          <div><dt>{{ t.bathrooms }}</dt><dd>{{ listing.bathrooms|int if listing.bathrooms is not none else '—' }}</dd></div>
+          <div><dt>{{ t.floor }}</dt><dd>{{ listing.floor|int if listing.floor is not none else '—' }}</dd></div>
+          <div><dt>{{ t.furnishing }}</dt><dd>{{ (listing.furnishing_status or '—')|replace('_', ' ')|title }}</dd></div>
+          <div><dt>{{ t.elevator }}</dt><dd>{{ t.yes if listing.has_elevator else t.no }}</dd></div>
+          {% if listing.square_meters and listing.price_in_euro %}
+          <div><dt>{{ t.price_sqm }}</dt><dd>€{{ "{:,.0f}".format(listing.price_in_euro / listing.square_meters) }}</dd></div>
+          {% endif %}
+        </dl>
+        <a class="button button--dark" href="{{ url_for('mortgage') }}?price={{ listing.price_in_euro|int if listing.price_in_euro else 150000 }}">{{ t.open_calculator }} →</a>
+      </aside>
+    </div>
+
+    <div class="detail-checklist">
+      <div><span>{{ 'VERIFIKIMI' if lang == 'sq' else 'VERIFICATION' }}</span><h2>{{ 'Dokumentet e blerjes.' if lang == 'sq' else 'Purchase documents.' }}</h2></div>
+      <ul>
+        <li><i>✓</i>{{ 'Certifikata e pronësisë' if lang == 'sq' else 'Ownership certificate' }}</li>
+        <li><i>✓</i>{{ 'Leja e përdorimit' if lang == 'sq' else 'Occupancy permit' }}</li>
+        <li><i>✓</i>{{ 'Detyrimet financiare' if lang == 'sq' else 'Financial obligations' }}</li>
+      </ul>
+      <a href="{{ url_for('buyer_guide') }}">{{ t.buyer_kit }} ↗</a>
+    </div>
   </div>
 </section>
 {% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/favourite.js') }}"></script>{% endblock %}

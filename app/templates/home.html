@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% from "_cards.html" import cards with context %}
+{% block title %}TIRANA/41 — {{ 'Inteligjencë pronash' if lang == 'sq' else 'Property intelligence' }}{% endblock %}
+
+{% block content %}
+<section class="home-hero">
+  <div class="hero-coordinate">41.3275° N<br>19.8187° E</div>
+  <div class="hero-orbit hero-orbit--one"></div>
+  <div class="hero-orbit hero-orbit--two"></div>
+  <div class="shell home-hero__grid">
+    <div class="home-hero__copy">
+      <p class="eyebrow"><span></span>{{ t.hero_eyebrow }}</p>
+      <h1>
+        <span>{{ t.hero_title_top }}</span>
+        <em>{{ t.hero_title_bottom }}</em>
+      </h1>
+      <p class="hero-lead">{{ t.hero_lead }}</p>
+      <div class="hero-actions">
+        <a class="button button--acid" href="{{ url_for('listings') }}">{{ t.explore }} <span>↗</span></a>
+        <a class="button button--line" href="{{ url_for('mortgage') }}">{{ t.open_calculator }}</a>
+      </div>
+    </div>
+
+    <div class="hero-gallery">
+      <figure class="hero-gallery__main">
+        <img src="{{ url_for('static', filename='images/properties/property-19-ringside-residence.webp') }}" alt="Tirana residence">
+        <figcaption><span>TIRANA/41</span><b>€180K?</b></figcaption>
+      </figure>
+      <figure class="hero-gallery__side">
+        <img src="{{ url_for('static', filename='images/properties/property-20-foto-janku.webp') }}" alt="Tirana apartment interior">
+      </figure>
+      <div class="hero-gallery__stamp">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <path id="circlePath" d="M50,50 m-34,0 a34,34 0 1,1 68,0 a34,34 0 1,1 -68,0" fill="none"/>
+          <text><textPath href="#circlePath">SEE BEYOND THE ASKING PRICE · </textPath></text>
+        </svg>
+        <span>↘</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell hero-stats">
+    <div><strong>{{ "{:,}".format(stats.total) }}</strong><span>{{ t.analysed }}</span></div>
+    <div><strong>€{{ "{:,}".format(stats.median_ppsqm) }}</strong><span>{{ t.median_sqm }}</span></div>
+    <div><strong>{{ stats.great_deals }}</strong><span>{{ t.great_now }}</span></div>
+    <div class="hero-stats__note"><i></i><span>{{ 'Të dhëna të tregut të Tiranës' if lang == 'sq' else 'Tirana market data' }}</span></div>
+  </div>
+</section>
+
+<section class="featured-block">
+  <div class="shell">
+    <div class="section-title">
+      <div>
+        <span>{{ 'ZGJEDHUR NGA MODELI' if lang == 'sq' else 'SELECTED BY THE MODEL' }}</span>
+        <h2>{{ t.featured }}</h2>
+      </div>
+      <a href="{{ url_for('listings') }}">{{ t.view_all }} <b>↗</b></a>
+    </div>
+    {{ cards(featured, t) }}
+  </div>
+</section>
+
+<section class="home-market">
+  <div class="shell home-market__grid">
+    <div class="home-market__copy">
+      <span>{{ 'TREGU NË NJË PAMJE' if lang == 'sq' else 'THE MARKET AT A GLANCE' }}</span>
+      <h2>{{ 'Të dhënat që e bëjnë tregun më të qartë.' if lang == 'sq' else 'Market data, made clearer.' }}</h2>
+      <p>{{ 'Shpërndarje çmimesh, sinjale oferte dhe çdo pikë në hartë.' if lang == 'sq' else 'Price distributions, deal signals and every point on the map.' }}</p>
+      <a class="text-arrow" href="{{ url_for('analytics') }}">{{ 'Hap pamjen e tregut' if lang == 'sq' else 'Open market view' }} ↗</a>
+    </div>
+    <div class="mini-chart" aria-hidden="true">
+      <span style="--h:28%"></span><span style="--h:46%"></span><span style="--h:78%"></span>
+      <span style="--h:94%"></span><span style="--h:68%"></span><span style="--h:51%"></span>
+      <span style="--h:35%"></span><span style="--h:22%"></span>
+      <b>€ / m²</b>
+    </div>
+  </div>
+</section>
+
+<section class="toolkit">
+  <div class="shell">
+    <div class="section-title section-title--light">
+      <div><span>{{ 'MJETET E BLERËSIT' if lang == 'sq' else 'BUYER TOOLS' }}</span><h2>{{ 'Nga kërkimi te çelësat.' if lang == 'sq' else 'From search to keys.' }}</h2></div>
+    </div>
+    <div class="toolkit-grid">
+      <a href="{{ url_for('mortgage') }}">
+        <span class="toolkit-icon">€</span><h3>{{ t.mortgage }}</h3><p>{{ t.calculator_lead }}</p><b>↗</b>
+      </a>
+      <a href="{{ url_for('buyer_guide') }}">
+        <span class="toolkit-icon">✓</span><h3>{{ t.buyer_kit }}</h3><p>{{ t.documents_lead }}</p><b>↗</b>
+      </a>
+      <a href="{{ url_for('favourites') if current_user else url_for('register') }}">
+        <span class="toolkit-icon">♡</span><h3>{{ t.favourites }}</h3><p>{{ t.auth_sub }}</p><b>↗</b>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

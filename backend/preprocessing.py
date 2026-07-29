@@ -2,13 +2,11 @@
 backend/preprocessing.py
 
 Centralized preprocessing for the Tirana Deal Finder.
-Implements the 7-step pipeline described in docs/concept/04-data-preprocessing.md,
-plus Step 8 (distance to city center) added after Session 1 EDA.
+Implements the 7-step pipeline described in docs/concept/04-data-preprocessing.md.
 
 It produces TWO views of the data:
   - display_df : all cleaned records (steps 1-4 + step 6). Used by the web app.
-  - ml_df      : display_df minus outliers (step 5) + distance feature (step 8).
-                 Used to train/predict.
+  - ml_df      : display_df minus outliers (step 5). Used to train/predict.
 
 Run it directly to generate data/listings_clean.parquet:
 
@@ -24,11 +22,8 @@ import json
 import logging
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 pd.set_option("future.no_silent_downcasting", True)
-
-from backend import poi
 
 # ---------------------------------------------------------------------------
 # Constants  (edit these to change behaviour — keep thresholds in one place)
@@ -91,12 +86,6 @@ CATEGORICAL_FIELDS = ["furnishing_status", "property_status", "property_type"]
 # ML view rules.
 ML_DROP_IF_NULL = ["price_in_euro", "square_meters"]   # essential -> drop row
 ML_IMPUTE_MEDIAN = ["bedrooms", "bathrooms", "floor"]  # impute with median
-
-# Step 8 — location features (distance to center, POI proximity, zone).
-# Session 1 EDA finding: correlation -0.183 between raw lat/lng distance and
-# price after filtering invalid coordinates; adds a location signal the model
-# previously had none of. Implemented in backend/poi.py.
-MAX_DISTANCE_KM = 20  # beyond this, coordinates are considered invalid (bad geocoding)
 
 logger = logging.getLogger(__name__)
 
@@ -194,8 +183,8 @@ def build_display_df(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# Build the ML dataset (display - outliers, with imputation, + distance feature)
-# Steps 4 (ML branch) + 5 + 8
+# Build the ML dataset (display - outliers, with imputation)
+# Steps 4 (ML branch) + 5
 # ---------------------------------------------------------------------------
 def build_ml_df(display_df: pd.DataFrame) -> pd.DataFrame:
     df = display_df.copy()
@@ -206,7 +195,6 @@ def build_ml_df(display_df: pd.DataFrame) -> pd.DataFrame:
     logger.info("ML: dropped %d row(s) missing target/square_meters", before - len(df))
 
     # Impute remaining numeric nulls with the column median.
-    # (bedrooms/bathrooms NaNs from the Step 3 sentinel fix land here too.)
     for col in ML_IMPUTE_MEDIAN:
         if col in df.columns:
             n = int(df[col].isna().sum())
@@ -226,20 +214,6 @@ def build_ml_df(display_df: pd.DataFrame) -> pd.DataFrame:
     ppsqm = df["price_in_euro"] / df["square_meters"]
     df = df[(ppsqm >= PPSQM_MIN) & (ppsqm <= PPSQM_MAX)]
     logger.info("ML: removed %d row(s) with implausible price/m²", before - len(df))
-
-    # Step 8 — location features; drop rows with invalid/missing coordinates first
-    # (Session 1 EDA: lat=0/lng=0 sentinel rows, plus a handful of listings with
-    # coordinates in other cities entirely — e.g. Prague — get excluded here).
-    before = len(df)
-    valid_coords = (df["latitude"] != 0) & (df["longitude"] != 0)
-    df = df[valid_coords].copy()
-    df = poi.add_city_center_distance(df)
-    df = df[df["dist_to_center_km"] <= MAX_DISTANCE_KM]
-    logger.info("Step 8: removed %d row(s) with invalid/out-of-range coordinates", before - len(df))
-
-    df = poi.assign_zones(df)
-    df = poi.add_proximity_features(df)
-    df = poi.compute_location_score(df)
 
     return df.reset_index(drop=True)
 

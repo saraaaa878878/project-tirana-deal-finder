@@ -61,7 +61,7 @@
     panel.setAttribute("aria-hidden", "false");
     launcher.classList.add("is-hidden");
     if (!greeted) {
-      addBot("Hi! I can search listings, estimate a fair price, and find the best deals in Tirana. What are you after?");
+      addBot(log.dataset.greeting || "Hi! I can search listings, compare prices and find deals in Tirana. What are you looking for?");
       greeted = true;
     }
     setTimeout(() => text.focus(), 60);

@@ -1,0 +1,68 @@
+{% macro deal_label(grade, t) -%}
+  {%- if grade == 'great' -%}{{ t.great_deal }}
+  {%- elif grade == 'good' -%}{{ t.good_deal }}
+  {%- elif grade == 'bad' -%}{{ t.market_price }}
+  {%- else -%}{{ t.no_estimate }}{%- endif -%}
+{%- endmacro %}
+
+{% macro property_card(l, t, position=0) %}
+{% set image = listing_image(l) %}
+<article class="property-card property-card--{{ l.deal_grade }}">
+  <div class="property-card__media {{ 'has-photo' if image else 'is-placeholder' }}">
+    <a href="{{ url_for('listing_detail', listing_id=l.listing_id) }}" aria-label="{{ l.address or t.address_missing }}">
+      {% if image %}
+      <img src="{{ image }}" alt="{{ l.address or t.address_missing }}" loading="{{ 'eager' if position < 6 else 'lazy' }}">
+      {% else %}
+      <div class="property-placeholder">
+        <span>TIRANA/41</span>
+        <svg viewBox="0 0 360 220" aria-hidden="true">
+          <path d="M18 180V88l62-33 58 25 66-54 138 77v77"/>
+          <path d="M80 55v125M138 80v100M204 26v154M272 64v116"/>
+          <path d="M44 112h18m0 28H44m60-33h18m0 32h-18m59-68h20m-20 37h20m43-31h22m-22 39h22m23-14h26m-26 36h26"/>
+        </svg>
+        <small>41.3275° N</small>
+      </div>
+      {% endif %}
+    </a>
+    <span class="deal-chip deal-chip--{{ l.deal_grade }}">{{ deal_label(l.deal_grade, t) }}</span>
+    <button class="card-heart {{ 'is-saved' if l.listing_id in favourite_ids }}" type="button"
+            data-favourite data-url="{{ url_for('toggle_favourite', listing_id=l.listing_id) }}"
+            data-save="{{ t.save }}" data-saved="{{ t.saved }}"
+            aria-label="{{ t.save }}"><span>{{ '♥' if l.listing_id in favourite_ids else '♡' }}</span></button>
+  </div>
+  <div class="property-card__body">
+    <div class="property-card__line">
+      <h3>{% if l.price_in_euro is not none %}€{{ "{:,.0f}".format(l.price_in_euro) }}{% else %}—{% endif %}</h3>
+      <button class="compare-button" type="button" data-compare
+              data-id="{{ l.listing_id }}"
+              data-address="{{ l.address or t.address_missing }}"
+              data-price="{{ l.price_in_euro or 0 }}"
+              data-sqm="{{ l.square_meters or 0 }}"
+              data-grade="{{ deal_label(l.deal_grade, t) }}"
+              data-url="{{ url_for('listing_detail', listing_id=l.listing_id) }}">{{ t.compare }} +</button>
+    </div>
+    <a class="property-card__address" href="{{ url_for('listing_detail', listing_id=l.listing_id) }}">{{ l.address or t.address_missing }}</a>
+    <div class="property-card__signal">
+      {% if l.predicted_price %}
+      <span>{{ t.estimated }} €{{ "{:,.0f}".format(l.predicted_price) }}</span>
+      {% if l.gap_pct is not none and l.gap_pct > 0 %}<b>↓ {{ l.gap_pct }}% {{ t.below }}</b>
+      {% elif l.gap_pct is not none and l.gap_pct < 0 %}<b>↑ {{ (l.gap_pct * -1)|round(1) }}% {{ t.above }}</b>{% endif %}
+      {% else %}<span>{{ t.no_estimate }}</span>{% endif %}
+    </div>
+    <ul class="property-specs">
+      <li><b>{{ l.square_meters|int if l.square_meters is not none else '—' }}</b><span>m²</span></li>
+      <li><b>{{ l.bedrooms|int if l.bedrooms is not none else '—' }}</b><span>BD</span></li>
+      <li><b>{{ l.bathrooms|int if l.bathrooms is not none else '—' }}</b><span>BA</span></li>
+      <li><b>{{ l.floor|int if l.floor is not none else '—' }}</b><span>FL</span></li>
+    </ul>
+  </div>
+</article>
+{% endmacro %}
+
+{% macro cards(listings, t) %}
+<div class="property-grid">
+  {% for l in listings %}
+    {{ property_card(l, t, loop.index0) }}
+  {% endfor %}
+</div>
+{% endmacro %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ t.mortgage }} — TIRANA/41{% endblock %}
+
+{% block content %}
+<section class="mortgage-page">
+  <div class="mortgage-page__line"></div>
+  <div class="shell">
+    <div class="mortgage-head">
+      <p class="eyebrow"><span></span>{{ 'LLOGARITËSI I KREDISË' if lang == 'sq' else 'MORTGAGE CALCULATOR' }}</p>
+      <h1>{{ t.calculator_title }}</h1>
+      <p>{{ t.calculator_lead }}</p>
+    </div>
+
+    <div class="mortgage-studio">
+      <form class="mortgage-controls" id="mortgageForm">
+        <div class="control-group control-group--price">
+          <label for="propertyPrice">{{ t.property_price }}</label>
+          <div><span>€</span><input id="propertyPrice" type="number" value="150000" min="10000" step="1000"></div>
+        </div>
+
+        <div class="control-group">
+          <div><label for="downPayment">{{ t.down_payment }}</label><output id="downOutput">20%</output></div>
+          <input id="downPayment" type="range" value="20" min="0" max="80" step="1">
+          <small><span>0%</span><span>80%</span></small>
+        </div>
+
+        <div class="control-group">
+          <div><label for="interestRate">{{ t.interest_rate }}</label><output id="rateOutput">4.5%</output></div>
+          <input id="interestRate" type="range" value="4.5" min="0.5" max="15" step="0.1">
+          <small><span>0.5%</span><span>15%</span></small>
+        </div>
+
+        <div class="control-group">
+          <div><label for="loanYears">{{ t.loan_years }}</label><output id="yearsOutput">20</output></div>
+          <input id="loanYears" type="range" value="20" min="1" max="35" step="1">
+          <small><span>1</span><span>35 {{ 'vjet' if lang == 'sq' else 'years' }}</span></small>
+        </div>
+      </form>
+
+      <div class="mortgage-result">
+        <div class="mortgage-result__primary">
+          <span>{{ t.monthly_payment }}</span>
+          <strong id="monthlyPayment">€0</strong>
+          <small>{{ t.monthly_note }}</small>
+        </div>
+        <div class="loan-visual">
+          <div class="loan-ring" id="loanRing"><div><b id="principalPercent">0%</b><span>{{ t.principal }}</span></div></div>
+          <div class="loan-bars">
+            <span><i></i>{{ t.principal }}</span>
+            <span><i></i>{{ t.total_interest }}</span>
+          </div>
+        </div>
+        <dl class="mortgage-totals">
+          <div><dt>{{ t.principal }}</dt><dd id="loanAmount">€0</dd></div>
+          <div><dt>{{ t.total_interest }}</dt><dd id="totalInterest">€0</dd></div>
+          <div><dt>{{ t.total_cost }}</dt><dd id="totalCost">€0</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/mortgage.js') }}"></script>{% endblock %}

@@ -1,16 +1,15 @@
-# Tirana Deal Finder
+# TIRANA/41
 
-An AI-powered web app that estimates a fair price for apartments in Tirana, then flags the
-**great / good / market-price** deals — with a browsable listings site, a market dashboard
-with a price map, and a chat assistant you can talk to in plain language.
+A bilingual property-intelligence platform that estimates a fair price for apartments in
+Tirana, then flags **great / good / market-price** deals. It includes photographic listings,
+a three-mode city map, market analytics, saved properties, comparison, buyer documents,
+a mortgage calculator and a chat assistant.
 
 This is the reference build for a 3-week (plus a Week 0 warm-up) summer school on
 **building software with AI**. The goal isn't to memorize syntax — it's to design, build,
 and debug a real product using an AI coding assistant.
 
-![Hero Image](https://i.imgur.com/GP33gzs.jpeg)
-
----
+The interface is fully responsive and uses the `TIRANA/41` editorial design system.
 
 ## What it does
 
@@ -26,7 +25,7 @@ and debug a real product using an AI coding assistant.
 ## Tech stack
 
 - **Data & ML:** Python, pandas, scikit-learn, joblib
-- **Web:** Flask, Jinja, Bootstrap
+- **Web:** Flask, Jinja, custom responsive CSS
 - **Visualization:** Chart.js, Leaflet (+ markercluster)
 - **AI layer:** Google Gemini via the `google-genai` SDK (tool-calling)
 - **Tooling:** Git/GitHub, VS Code + WSL

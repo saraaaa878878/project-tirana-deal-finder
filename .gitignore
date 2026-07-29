@@ -15,5 +15,4 @@ models/*.joblib
 
 # os / editor
 .DS_Store
-.vscode/venv/
-venv/
+.vscode/

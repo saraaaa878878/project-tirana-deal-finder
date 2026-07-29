@@ -1,71 +1,89 @@
 {% extends "base.html" %}
-{% block title %}Market overview — Tirana Deal Finder{% endblock %}
+{% block title %}{{ t.market }} — TIRANA/41{% endblock %}
 
 {% block content %}
-<section class="hero hero--compact">
-  <div class="wrap">
-    <span class="hero__eyebrow">Market overview</span>
-    <h1 class="hero__title">The Tirana market, <em>at a glance</em>.</h1>
-    <p class="hero__lead">
-      Where prices cluster, how they move with size, and how many listings are actually
-      worth a look — across {{ "{:,}".format(stats.total) }} homes.
-    </p>
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat__n">{{ "{:,}".format(stats.total) }}</div>
-        <div class="stat__l">Listings</div>
-      </div>
-      <div class="stat">
-        <div class="stat__n">&euro;{{ "{:,}".format(stats.median_price) }}</div>
-        <div class="stat__l">Median price</div>
-      </div>
-      <div class="stat">
-        <div class="stat__n">&euro;{{ "{:,}".format(stats.median_ppsqm) }}</div>
-        <div class="stat__l">Median / m&sup2;</div>
-      </div>
+<section class="market-hero">
+  <div class="market-hero__mesh"></div>
+  <div class="shell">
+    <div class="market-live"><i></i>{{ 'TREGU I TIRANËS' if lang == 'sq' else 'TIRANA MARKET' }}<span>41.3275° N</span></div>
+    <div class="market-hero__head">
+      <h1>{{ 'TREGU I PRONAVE' if lang == 'sq' else 'TIRANA PROPERTY' }}<br><em>{{ 'NË TIRANË.' if lang == 'sq' else 'MARKET.' }}</em></h1>
+      <p>{{ 'Çmime, tendenca dhe sinjale nga tregu i pronave në Tiranë.' if lang == 'sq' else 'Prices, patterns and property signals across Tirana.' }}</p>
+    </div>
+
+    <div class="market-kpis">
+      <article><span>{{ 'PRONA' if lang == 'sq' else 'LISTINGS' }}</span><b>{{ "{:,}".format(stats.total) }}</b><small>{{ 'në analizë' if lang == 'sq' else 'in view' }}</small></article>
+      <article><span>{{ 'ÇMIMI MEDIAN' if lang == 'sq' else 'MEDIAN PRICE' }}</span><b>€{{ "{:,}".format(stats.median_price) }}</b><small>{{ 'çmim i kërkuar' if lang == 'sq' else 'asking price' }}</small></article>
+      <article><span>{{ 'VLERA / M²' if lang == 'sq' else 'VALUE / M²' }}</span><b>€{{ "{:,}".format(stats.median_ppsqm) }}</b><small>{{ 'mediana' if lang == 'sq' else 'median' }}</small></article>
+      <article class="market-kpis__accent"><span>{{ 'OFERTA TË SHKËLQYERA' if lang == 'sq' else 'GREAT DEALS' }}</span><b>{{ stats.by_grade.great }}</b><small>{{ 'të identifikuara' if lang == 'sq' else 'identified' }}</small></article>
     </div>
   </div>
 </section>
 
-<section class="wrap analytics">
-  <div class="chart-grid">
-    <div class="chart-card chart-card--wide">
-      <h2 class="chart-card__title">Price distribution</h2>
-      <div class="chart-box"><canvas id="chartDistribution"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h2 class="chart-card__title">Median price by bedrooms</h2>
-      <div class="chart-box"><canvas id="chartBedrooms"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h2 class="chart-card__title">Deal breakdown</h2>
-      <div class="chart-box"><canvas id="chartGrades"></canvas></div>
-    </div>
-  </div>
+<section class="market-dashboard">
+  <div class="shell">
+    <div class="dashboard-grid">
+      <article class="dashboard-card dashboard-card--wide">
+        <header class="dashboard-card__head">
+          <div><span>{{ 'SINJALI I ÇMIMEVE' if lang == 'sq' else 'PRICE SIGNAL' }}</span><h2>{{ 'Peizazhi i çmimeve' if lang == 'sq' else 'Price landscape' }}</h2></div>
+          <div class="chart-tabs">
+            <button class="is-active" data-chart="distribution">{{ 'Shpërndarja' if lang == 'sq' else 'Distribution' }}</button>
+            <button data-chart="bedrooms">{{ 'Dhoma' if lang == 'sq' else 'Bedrooms' }}</button>
+          </div>
+        </header>
+        <div class="signal-readout"><span id="signalLabel">{{ 'INTERVALI MË AKTIV' if lang == 'sq' else 'MOST ACTIVE RANGE' }}</span><b id="signalValue">—</b></div>
+        <div class="signal-canvas"><canvas id="chartDistribution"></canvas></div>
+      </article>
 
-  <div class="map-card">
-    <h2 class="chart-card__title">Every listing, by asking price</h2>
-    <div id="map"></div>
+      <article class="dashboard-card dashboard-card--orbit">
+        <header class="dashboard-card__head"><div><span>{{ 'PËRBËRJA E TREGUT' if lang == 'sq' else 'MARKET MIX' }}</span><h2>{{ 'Radari i ofertave' if lang == 'sq' else 'Deal radar' }}</h2></div></header>
+        <div class="orbit-canvas">
+          <canvas id="chartGrades"></canvas>
+          <div class="orbit-center"><b>{{ stats.by_grade.great + stats.by_grade.good + stats.by_grade.bad }}</b><span>{{ 'të vlerësuara' if lang == 'sq' else 'scored' }}</span></div>
+        </div>
+        <div class="deal-legend">
+          <div><i class="great"></i><span>{{ t.great_deal }}</span><b>{{ stats.by_grade.great }}</b></div>
+          <div><i class="good"></i><span>{{ t.good_deal }}</span><b>{{ stats.by_grade.good }}</b></div>
+          <div><i class="market"></i><span>{{ t.market_price }}</span><b>{{ stats.by_grade.bad }}</b></div>
+        </div>
+      </article>
+    </div>
+
+    <article class="map-explorer">
+      <header class="map-explorer__head">
+        <div><span>{{ 'EKSPLORO QYTETIN' if lang == 'sq' else 'EXPLORE THE CITY' }}</span><h2>{{ t.map_title }}</h2><p>{{ t.map_lead }}</p></div>
+        <div class="map-modes" role="group" aria-label="Map style">
+          <button class="is-active" data-map-mode="midnight">{{ t.midnight }}</button>
+          <button data-map-mode="paper">{{ t.paper }}</button>
+          <button data-map-mode="deal">{{ t.deal_heat }}</button>
+        </div>
+      </header>
+      <div class="map-price-filters">
+        <button class="is-active" data-map-band="all">{{ t.all }}</button>
+        <button data-map-band="under_80k">&lt; €80k</button>
+        <button data-map-band="80k_130k">€80–130k</button>
+        <button data-map-band="130k_200k">€130–200k</button>
+        <button data-map-band="over_200k">€200k+</button>
+      </div>
+      <div id="map" data-view-label="{{ t.view_listing }}"></div>
+    </article>
   </div>
 </section>
 
 <script>
-  // Data computed server-side by backend/stats.py, handed to the charts + map.
-  window.MARKET_STATS = {{ stats | tojson }};
-  window.MAP_POINTS = {{ points | tojson }};
+  window.MARKET_STATS = {{ stats|tojson }};
+  window.MAP_POINTS = {{ points|tojson }};
+  window.MARKET_LANG = "{{ lang }}";
 </script>
 {% endblock %}
 
 {% block scripts %}
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<!-- Leaflet + marker clustering -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-<!-- Our wiring -->
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script src="{{ url_for('static', filename='js/map.js') }}"></script>
 {% endblock %}

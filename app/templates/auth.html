@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ t.signup if mode == 'register' else t.login }} — TIRANA/41{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+  <div class="auth-visual">
+    <img src="{{ url_for('static', filename='images/properties/property-18-misto-mame.webp') }}" alt="Tirana residence">
+    <div class="auth-visual__overlay">
+      <span>TIRANA/41</span>
+      <h2>{{ 'Lista jote e pronave.' if lang == 'sq' else 'Your property shortlist.' }}</h2>
+      <p>41.3275° N · 19.8187° E</p>
+    </div>
+  </div>
+  <div class="auth-form-wrap">
+    <div class="auth-form-head">
+      <span>{{ 'LISTA JOTE PERSONALE' if lang == 'sq' else 'YOUR PERSONAL SHORTLIST' }}</span>
+      <h1>{{ t.create_account if mode == 'register' else t.welcome_back }}</h1>
+      <p>{{ t.auth_sub }}</p>
+    </div>
+    <form class="auth-form" method="post">
+      {% if mode == 'register' %}
+      <label><span>{{ t.name }}</span><input name="name" required autocomplete="name"></label>
+      {% endif %}
+      <label><span>{{ t.email }}</span><input name="email" type="email" required autocomplete="email"></label>
+      <label><span>{{ t.password }}</span><input name="password" type="password" required minlength="8" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}"></label>
+      <button class="button button--acid" type="submit">{{ t.create_account if mode == 'register' else t.login }} <span>→</span></button>
+    </form>
+    <p class="auth-switch">
+      {% if mode == 'register' %}
+        {{ 'Ke tashmë një llogari?' if lang == 'sq' else 'Already have an account?' }} <a href="{{ url_for('login') }}">{{ t.login }}</a>
+      {% else %}
+        {{ 'Nuk ke llogari?' if lang == 'sq' else 'New here?' }} <a href="{{ url_for('register') }}">{{ t.signup }}</a>
+      {% endif %}
+    </p>
+  </div>
+</section>
+{% endblock %}

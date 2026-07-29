@@ -22,7 +22,7 @@ from backend import llm, tools
 
 logger = logging.getLogger(__name__)
 
-# Cap tool rounds so a confused model cannot loop forever and burn quota.
+# Cap tool rounds so a confused model can't loop forever and burn quota.
 MAX_TOOL_TURNS = 5
 
 SYSTEM_PROMPT = (
@@ -40,157 +40,71 @@ SYSTEM_PROMPT = (
 )
 
 
-def ask(
-    message: str,
-    history: list | None = None,
-    verbose: bool = False,
-) -> dict:
+def ask(message: str, history: list | None = None, verbose: bool = False) -> dict:
     """Answer one user message, running tools as needed.
 
-    Returns:
-        {
-            "answer": str,
-            "history": list,
-            "trace": list,
-        }
-
-    Pass the returned history back on the next call to keep a multi-turn
-    conversation.
-
-    trace records every tool call and result, which is useful for the UI,
-    debugging, and teaching.
+    Returns {"answer": str, "history": list, "trace": list}. Pass the returned
+    `history` back in on the next call to keep a multi-turn conversation.
+    `trace` records every tool call + result (useful for the UI and for teaching).
     """
     contents = list(history) if history else []
     contents.append(llm.user_message(message))
-
     trace: list[dict] = []
 
-    for turn_number in range(1, MAX_TOOL_TURNS + 1):
-        result = llm.generate(
-            contents,
-            system_instruction=SYSTEM_PROMPT,
-        )
+    for _ in range(MAX_TOOL_TURNS):
+        result = llm.generate(contents, system_instruction=SYSTEM_PROMPT)
 
         if result["type"] == "tool_calls":
-            # Record Gemini's tool-call turn in the conversation history.
+            # 1. Record the model's "I want to call X" turn.
             if result.get("content") is not None:
                 contents.append(result["content"])
-
-            # Run every requested tool and return each result to Gemini.
+            # 2. Run each requested tool for real and feed results back.
             for call in result["calls"]:
-                tool_name = call["name"]
-                tool_args = call.get("args") or {}
-                call_id = call.get("id")
-
                 if verbose:
-                    print(
-                        f"  → calling {tool_name}({tool_args})"
-                    )
+                    print(f"  \u2192 calling {call['name']}({call['args']})")
+                output = tools.dispatch(call["name"], call["args"])
+                trace.append({"tool": call["name"], "args": call["args"], "result": output})
+                contents.append(llm.tool_result_message(call["name"], output))
+            continue  # let the model see the results and decide what's next
 
-                output = tools.dispatch(
-                    tool_name,
-                    tool_args,
-                )
-
-                trace.append({
-                    "turn": turn_number,
-                    "tool": tool_name,
-                    "args": tool_args,
-                    "call_id": call_id,
-                    "result": output,
-                })
-
-                # The improved llm.py accepts call_id and passes it back to
-                # Gemini. This is important for newer Gemini models that attach
-                # an id to every function call.
-                contents.append(
-                    llm.tool_result_message(
-                        tool_name,
-                        output,
-                        call_id=call_id,
-                    )
-                )
-
-            # Let Gemini read the tool results and decide whether it needs
-            # another tool or can now produce the final answer.
-            continue
-
-        # A normal text response means the assistant is finished.
+        # A plain text answer — we're done.
         if result.get("content") is not None:
             contents.append(result["content"])
+        return {"answer": result["text"], "history": contents, "trace": trace}
 
-        return {
-            "answer": result["text"],
-            "history": contents,
-            "trace": trace,
-            "model": result.get("model"),
-            "usage": result.get("usage", {}),
-        }
-
-    logger.warning(
-        "Chat exceeded MAX_TOOL_TURNS=%d for message %r",
-        MAX_TOOL_TURNS,
-        message,
-    )
-
+    # Ran out of tool rounds.
     return {
-        "answer": (
-            "I couldn't finish that in a reasonable number of steps. "
-            "Try rephrasing or asking something more specific."
-        ),
+        "answer": "I couldn't finish that in a reasonable number of steps. "
+                  "Try rephrasing or asking something more specific.",
         "history": contents,
         "trace": trace,
-        "model": None,
-        "usage": {},
     }
 
 
 if __name__ == "__main__":
     import sys
 
-    logging.basicConfig(
-        level=logging.WARNING,
-        format="%(levelname)s: %(message)s",
-    )
+    logging.basicConfig(level=logging.WARNING, format="%(levelname)s: %(message)s")
 
     if len(sys.argv) > 1:
-        # One-shot mode:
-        # python -m backend.chat "your question"
+        # One-shot mode: python -m backend.chat "your question"
         question = " ".join(sys.argv[1:])
         print(f"you > {question}")
-
-        result = ask(
-            question,
-            verbose=True,
-        )
-
+        result = ask(question, verbose=True)
         print(f"\nassistant > {result['answer']}")
-
     else:
-        # Interactive terminal mode.
-        print(
-            "Tirana Deal Finder assistant — "
-            "ask about listings, prices, or deals."
-        )
+        # Interactive mode.
+        print("Tirana Deal Finder assistant — ask about listings, prices, or deals.")
         print("Type 'quit' to exit.\n")
-
         history = None
-
         while True:
             try:
                 question = input("you > ").strip()
             except (EOFError, KeyboardInterrupt):
                 print()
                 break
-
             if question.lower() in ("quit", "exit", "q", ""):
                 break
-
-            result = ask(
-                question,
-                history=history,
-                verbose=True,
-            )
-
+            result = ask(question, history=history, verbose=True)
             history = result["history"]
             print(f"\nassistant > {result['answer']}\n")

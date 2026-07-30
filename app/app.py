@@ -239,8 +239,15 @@ def _listing_context():
 
 @app.route("/")
 def home():
-    featured = data.search_listings(deal_grade="great", limit=3)
-    return render_template("home.html", featured=featured, stats=data.get_hero_stats())
+    # Show only great deals that have a real property photo on the homepage.
+    great_deals = data.search_listings(deal_grade="great")
+    featured = [listing for listing in great_deals if listing_image(listing)][:3]
+
+    return render_template(
+        "home.html",
+        featured=featured,
+        stats=data.get_hero_stats(),
+    )
 
 
 @app.route("/listings")

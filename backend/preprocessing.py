@@ -182,20 +182,38 @@ def _handle_nulls_display(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# Build the DISPLAY dataset (steps 1-4 + 6)
+# Build the DISPLAY dataset (steps 1-4 + 5/5b + 6)
 # ---------------------------------------------------------------------------
 def build_display_df(raw: pd.DataFrame) -> pd.DataFrame:
     df = _add_listing_id(raw)        # Step 2
     df = _fix_negatives(df)          # Step 3 (uses source column names)
     df = _rename_and_select(df)      # Step 6 (rename + drop unmapped columns)
     df = _handle_nulls_display(df)   # Step 4 (uses short names)
+
+    # Step 5 / 5b — drop listings with an implausible price or price-per-m².
+    # These are data-entry errors (e.g. price-per-m² typed into the total
+    # price field), not genuine cheap/expensive properties, so they are
+    # removed from the DISPLAY view too — not just the ML view — otherwise
+    # they show up on the site as absurd "great deal" listings.
+    before = len(df)
+    has_essentials = df["price_in_euro"].notna() & df["square_meters"].notna()
+    price_ok = df["price_in_euro"].between(PRICE_MIN, PRICE_MAX)
+    sqm_ok = df["square_meters"].between(SQM_MIN, SQM_MAX)
+    ppsqm = df["price_in_euro"] / df["square_meters"].replace(0, pd.NA)
+    ppsqm_ok = ppsqm.between(PPSQM_MIN, PPSQM_MAX)
+    df = df[~has_essentials | (price_ok & sqm_ok & ppsqm_ok)].copy()
+    logger.info(
+        "Step 5/5b: removed %d display row(s) with implausible price/size/price-per-m²",
+        before - len(df)
+    )
+
     logger.info("Display dataset ready: %d rows, %d columns", *df.shape)
     return df
 
 
 # ---------------------------------------------------------------------------
-# Build the ML dataset (display - outliers, with imputation, + distance feature)
-# Steps 4 (ML branch) + 5 + 8
+# Build the ML dataset (display + imputation + distance feature)
+# Steps 4 (ML branch) + 8   (Step 5 / 5b already applied in build_display_df)
 # ---------------------------------------------------------------------------
 def build_ml_df(display_df: pd.DataFrame) -> pd.DataFrame:
     df = display_df.copy()
@@ -215,18 +233,6 @@ def build_ml_df(display_df: pd.DataFrame) -> pd.DataFrame:
                 df[col] = df[col].fillna(median)
                 logger.info("ML: imputed %d null(s) in %s with median %.2f", n, col, median)
 
-    # Step 5 — remove outliers.
-    before = len(df)
-    df = df[(df["price_in_euro"] >= PRICE_MIN) & (df["price_in_euro"] <= PRICE_MAX)]
-    df = df[(df["square_meters"] >= SQM_MIN) & (df["square_meters"] <= SQM_MAX)]
-    logger.info("ML: removed %d outlier row(s) (price/size bounds)", before - len(df))
-
-    # Step 5b — drop listings whose price-per-m² is implausible.
-    before = len(df)
-    ppsqm = df["price_in_euro"] / df["square_meters"]
-    df = df[(ppsqm >= PPSQM_MIN) & (ppsqm <= PPSQM_MAX)]
-    logger.info("ML: removed %d row(s) with implausible price/m²", before - len(df))
-
     # Step 8 — location features; drop rows with invalid/missing coordinates first
     # (Session 1 EDA: lat=0/lng=0 sentinel rows, plus a handful of listings with
     # coordinates in other cities entirely — e.g. Prague — get excluded here).
@@ -242,6 +248,7 @@ def build_ml_df(display_df: pd.DataFrame) -> pd.DataFrame:
     df = poi.compute_location_score(df)
 
     return df.reset_index(drop=True)
+
 
 
 # ---------------------------------------------------------------------------

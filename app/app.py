@@ -89,6 +89,25 @@ def _normalise_text(value):
     return "".join(ch for ch in text if not unicodedata.combining(ch)).lower()
 
 
+import re
+
+_POSTCODE_RE = re.compile(r"\s*\b\d{4}\b\s*")
+_SQ_TO_EN = {"Tiranë": "Tirana", "Shqipëri": "Albania", "Kamëz": "Kamza"}
+_EN_TO_SQ = {v: k for k, v in _SQ_TO_EN.items()}
+
+
+def display_address(address, lang="sq"):
+    """Return a listing's address cleaned up and localised for the given language."""
+    if not address:
+        return None
+    text = _POSTCODE_RE.sub(" ", str(address)).strip()
+    text = re.sub(r"\s*,\s*", ", ", text).strip(", ")
+    replacements = _EN_TO_SQ if lang == "sq" else _SQ_TO_EN
+    for old, new in replacements.items():
+        text = re.sub(rf"\b{re.escape(old)}\b", new, text)
+    return text or None
+
+
 def listing_image(listing):
     """Return a local photo for a listing when an address match is available."""
     try:
@@ -167,6 +186,7 @@ def inject_globals():
         "favourite_ids": favourite_ids,
         "listing_image": listing_image,
         "deal_score": deal_score,
+        "display_address": display_address,
     }
 
 

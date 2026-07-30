@@ -39,7 +39,7 @@ main { min-height: 70vh; overflow: clip; }
 
 .contact-strip {
   position: relative;
-  z-index: 60;
+  z-index: 910;
   color: var(--paper);
   background: var(--ink);
   font: 700 10px/1.2 var(--mono);
@@ -57,7 +57,7 @@ main { min-height: 70vh; overflow: clip; }
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 900;
   height: 86px;
   background: rgba(243, 240, 232, .92);
   backdrop-filter: blur(16px);
@@ -449,6 +449,9 @@ main { min-height: 70vh; overflow: clip; }
 .market-kpis__accent > span, .market-kpis__accent small { color: rgba(255,255,255,.77) !important; }
 .market-dashboard { padding: 70px 0 110px; background: #171715; color: var(--paper); }
 .dashboard-grid { display: grid; grid-template-columns: 1.55fr .75fr; gap: 18px; }
+.dashboard-grid--split { grid-template-columns: 1fr 1fr; margin-top: 18px; }
+.zone-canvas { height: 380px; margin-top: 18px; }
+.scatter-canvas { height: 330px; margin-top: 18px; }
 .dashboard-card { min-width: 0; padding: 31px; border: 1px solid rgba(255,255,255,.14); background: #20201d; }
 .dashboard-card__head { display: flex; justify-content: space-between; align-items: start; }
 .dashboard-card__head span, .map-explorer__head > div > span { color: var(--acid); font: 700 8px/1 var(--mono); letter-spacing: .1em; }
@@ -471,6 +474,8 @@ main { min-height: 70vh; overflow: clip; }
 .deal-legend i.great { background: var(--acid); }
 .deal-legend i.good { background: var(--gold); }
 .deal-legend i.market { background: var(--coral); }
+.deal-legend--compact { margin-top: 14px; }
+.deal-legend--compact > div { grid-template-columns: 10px auto; gap: 6px; }
 .map-explorer { margin-top: 18px; padding: 31px; border: 1px solid rgba(255,255,255,.14); background: #20201d; transition: background .3s, color .3s; }
 .map-explorer[data-mode="paper"] { background: #f3f0e8; color: var(--ink); }
 .map-explorer[data-mode="paper"] .map-modes button, .map-explorer[data-mode="paper"] .map-price-filters button { border-color: rgba(17,17,15,.18); color: var(--ink); }
@@ -479,13 +484,59 @@ main { min-height: 70vh; overflow: clip; }
 .map-explorer h2 { font-size: clamp(34px,4vw,59px); line-height: .98; }
 .map-explorer__head p { color: #999990; font-size: 12px; }
 .map-price-filters { margin: 30px 0 14px; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 24px; margin: 0 0 14px; }
+.map-legend__title { display: block; margin-bottom: 8px; color: #999990; font: 700 8px/1 var(--mono); letter-spacing: .06em; }
+.map-legend__row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.map-legend__row i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.map-legend__row span { margin-right: 10px; font-size: 11px; color: #777; }
+.map-explorer[data-mode="light"] .map-legend__title,
+.map-explorer[data-mode="light"] .map-legend__row span { color: #6a655c; }
+.map-frame { position: relative; z-index: 0; isolation: isolate; max-height: 650px; overflow: hidden; transition: max-height .4s ease, opacity .3s ease; }
+.map-frame .leaflet-pane { z-index: auto !important; }
+.map-frame .leaflet-tile-pane { z-index: 1 !important; }
+.map-frame .leaflet-overlay-pane { z-index: 2 !important; }
+.map-frame .leaflet-marker-pane { z-index: 3 !important; }
+.map-frame .leaflet-tooltip-pane { z-index: 4 !important; }
+.map-frame .leaflet-popup-pane { z-index: 5 !important; }
+.map-frame .leaflet-control,
+.map-frame .leaflet-top,
+.map-frame .leaflet-bottom { z-index: 6 !important; }
+.map-frame.is-collapsed { max-height: 0; opacity: 0; pointer-events: none; }
 #map { height: 610px; background: #111; }
-.price-cluster { display: grid; place-items: center; border-radius: 50%; background: var(--acid); color: var(--ink); box-shadow: 0 0 0 7px rgba(255,79,135,.22); font: 700 10px/1 var(--mono); }
+#map[data-hint]::after {
+  content: attr(data-hint);
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 500;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(17,17,15,.78);
+  color: #fffaf5;
+  font: 700 9px/1 var(--mono);
+  letter-spacing: .02em;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+#map.is-engaged[data-hint]::after { opacity: 0; }
+.price-cluster { position: relative; display: grid; place-items: center; border-radius: 50%; background: transparent; color: var(--ink); box-shadow: none; font: 700 10px/1 var(--mono); }
+.price-cluster span { position: relative; z-index: 2; }
+.price-cluster__fill { position: absolute; inset: 0; border-radius: 50%; z-index: 1; }
+.leaflet-popup.map-popup-wrap .leaflet-popup-content-wrapper { padding: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 18px 40px rgba(17,17,15,.28); }
+.leaflet-popup.map-popup-wrap .leaflet-popup-content { margin: 0; width: 220px !important; }
+.leaflet-popup.map-popup-wrap .leaflet-popup-close-button { z-index: 2; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
 .map-popup { min-width: 130px; font-family: var(--sans); }
-.map-popup span { display: block; color: #777; font: 700 7px/1 var(--mono); }
-.map-popup b { display: block; margin: 7px 0; font: 400 23px/1 var(--display); }
-.map-popup small { display: block; color: #777; }
-.map-popup a { display: inline-block; margin-top: 10px; border-bottom: 1px solid; font-size: 9px; font-weight: 800; }
+.map-popup__photo { display: block; width: 100%; height: 120px; object-fit: cover; background: #e8e4da; }
+.map-popup__body { padding: 14px 16px 16px; }
+.map-popup__body span { display: block; color: #999990; font: 700 7px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.map-popup__body b { display: block; margin: 7px 0 4px; font: 400 23px/1 var(--display); }
+.map-popup__body small { display: block; color: #777; font-size: 11px; line-height: 1.5; }
+.map-popup__addr { color: #555 !important; }
+.map-popup__grade { display: inline-block; margin-top: 9px; padding: 3px 9px; border-radius: 999px; font: 700 8px/1.6 var(--mono); font-style: normal; text-transform: uppercase; letter-spacing: .03em; }
+.map-popup__grade--great { background: rgba(255,79,135,.16); color: #ff4f87; }
+.map-popup__grade--good { background: rgba(255,209,102,.22); color: #a97c15; }
+.map-popup__grade--bad { background: rgba(122,41,72,.14); color: #7a2948; }
+.map-popup__body a { display: inline-block; margin-top: 12px; border-bottom: 1px solid; font-size: 9px; font-weight: 800; }
 
 /* Buyer guide */
 .guide-hero { position: relative; padding: 100px 0 80px; color: var(--paper); background: var(--violet); overflow: hidden; }
@@ -606,7 +657,7 @@ main { min-height: 70vh; overflow: clip; }
 .compare-clear { width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,.25); color: white; background: none; cursor: pointer; font: 700 8px/1 var(--mono); text-transform: uppercase; }
 
 /* Chat */
-.chat-widget { position: fixed; z-index: 80; right: 24px; bottom: 24px; }
+.chat-widget { position: fixed; z-index: 950; right: 24px; bottom: 24px; }
 .chat-launcher { display: grid; place-items: center; width: 58px; height: 58px; border: 0; border-radius: 50%; background: var(--acid); color: var(--ink); box-shadow: 0 10px 35px rgba(0,0,0,.22); cursor: pointer; transition: transform .2s; }
 .chat-launcher:hover { transform: rotate(-7deg) scale(1.05); }
 .chat-launcher.is-hidden { display: none; }
@@ -864,8 +915,8 @@ body::selection { background: #ff4f87; color: #11110f; }
 .map-explorer[data-mode="light"] .map-modes button.is-active,
 .map-explorer[data-mode="light"] .map-price-filters button.is-active { color: #11110f; }
 .price-cluster {
-  background: #ff4f87;
-  box-shadow: 0 0 0 6px rgba(255,79,135,.2);
+  background: transparent;
+  box-shadow: none;
 }
 
 .guide-hero {

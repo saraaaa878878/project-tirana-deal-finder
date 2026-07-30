@@ -22,4 +22,44 @@
   renderSignal("distribution");
   document.querySelectorAll("[data-chart]").forEach(button => button.addEventListener("click", () => { document.querySelectorAll("[data-chart]").forEach(b => b.classList.toggle("is-active", b === button)); renderSignal(button.dataset.chart); }));
   new Chart(document.getElementById("chartGrades"), { type: "doughnut", data: { labels: window.MARKET_LANG === "sq" ? ["Oferta të shkëlqyera", "Oferta të mira", "Çmim tregu"] : ["Great deals", "Good deals", "Market price"], datasets: [{ data: [S.by_grade.great, S.by_grade.good, S.by_grade.bad], backgroundColor: [colors.pink, colors.yellow, colors.cityBlue], borderColor: "#20201d", borderWidth: 3, spacing: 2, hoverOffset: 9 }] }, options: { responsive:true, maintainAspectRatio:false, cutout:"75%", rotation:-90, plugins:{ legend:{display:false}, tooltip:{backgroundColor:"#121b2e",padding:13} } } });
+  if (Array.isArray(S.by_zone) && S.by_zone.length && document.getElementById("chartZone")) {
+    const zoneLabels = S.by_zone.map(z => z.zone);
+    const zoneValues = S.by_zone.map(z => z.median_price);
+    new Chart(document.getElementById("chartZone"), {
+      type: "bar",
+      data: { labels: zoneLabels, datasets: [{ data: zoneValues, backgroundColor: colors.cityBlue, borderRadius: 6, maxBarThickness: 28 }] },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { displayColors: false, backgroundColor: "#f2efe8", titleColor: "#171715", bodyColor: "#55554f", padding: 14, callbacks: { label: c => "€" + c.parsed.x.toLocaleString() } } },
+        scales: { x: { grid: { color: grid }, border: { display: false }, ticks: { color: muted, callback: v => "€" + (v/1000) + "k" } }, y: { grid: { display: false }, border: { display: false }, ticks: { color: muted } } }
+      }
+    });
+  }
+  if (Array.isArray(S.size_vs_price) && S.size_vs_price.length && document.getElementById("chartSizePrice")) {
+    const gradeColor = { great: colors.pink, good: colors.yellow, bad: colors.cityBlue, unknown: muted };
+    const byGrade = { great: [], good: [], bad: [], unknown: [] };
+    S.size_vs_price.forEach(p => { (byGrade[p.grade] || byGrade.unknown).push({ x: p.sqm, y: p.price }); });
+    const gradeLabel = window.MARKET_LANG === "sq"
+      ? { great: "Shkëlqyer", good: "Mirë", bad: "Çmim tregu", unknown: "Panjohur" }
+      : { great: "Great", good: "Good", bad: "Market", unknown: "Unknown" };
+    new Chart(document.getElementById("chartSizePrice"), {
+      type: "scatter",
+      data: {
+        datasets: Object.keys(byGrade).filter(g => byGrade[g].length).map(g => ({
+          label: gradeLabel[g], data: byGrade[g], backgroundColor: gradeColor[g], pointRadius: 4, pointHoverRadius: 6
+        }))
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { displayColors: false, backgroundColor: "#f2efe8", titleColor: "#171715", bodyColor: "#55554f", padding: 14, callbacks: { label: c => c.parsed.x + " m² · €" + c.parsed.y.toLocaleString() } }
+        },
+        scales: {
+          x: { title: { display: true, text: window.MARKET_LANG === "sq" ? "m²" : "sqm", color: muted }, grid: { color: grid }, border: { display: false }, ticks: { color: muted } },
+          y: { grid: { color: grid }, border: { display: false }, ticks: { color: muted, callback: v => "€" + (v/1000) + "k" } }
+        }
+      }
+    });
+  }
 })();

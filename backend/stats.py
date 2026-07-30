@@ -69,6 +69,31 @@ def get_market_stats() -> dict:
     grade_counts = df["deal_grade"].value_counts()
     by_grade = {g: int(grade_counts.get(g, 0)) for g in ["great", "good", "bad", "unknown"]}
 
+    # Median price by zone (neighbourhood), sorted priciest-first;
+    # zones with very few listings are noisy, so require at least 5.
+    by_zone = []
+    if "zone" in df.columns:
+        zones = df[df["zone"].notna() & (df["zone"] != "unknown")]
+        grouped = zones.groupby("zone")["price_in_euro"].agg(["median", "count"])
+        grouped = grouped[grouped["count"] >= 5].sort_values("median", ascending=False)
+        by_zone = [
+            {"zone": zone, "median_price": int(row["median"]), "count": int(row["count"])}
+            for zone, row in grouped.iterrows()
+        ]
+
+    # Size vs price scatter, colour-coded by deal grade. Sampled to keep the
+    # chart readable and the page payload light.
+    scatter_source = df.dropna(subset=["square_meters", "price_in_euro"])
+    scatter_source = scatter_source[scatter_source["square_meters"] <= 400]
+    if len(scatter_source) > 600:
+        scatter_source = scatter_source.sample(600, random_state=42)
+    size_vs_price = [
+        {"sqm": int(row["square_meters"]),
+         "price": int(row["price_in_euro"]),
+         "grade": row["deal_grade"]}
+        for _, row in scatter_source.iterrows()
+    ]
+
     return {
         "total": int(len(df)),
         "median_price": int(price.median()),
@@ -78,6 +103,8 @@ def get_market_stats() -> dict:
         "distribution": distribution,
         "by_bedrooms": by_bedrooms,
         "by_grade": by_grade,
+        "by_zone": by_zone,
+        "size_vs_price": size_vs_price,
     }
 
 

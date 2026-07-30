@@ -50,6 +50,27 @@
       </article>
     </div>
 
+    <div class="dashboard-grid">
+      <article class="dashboard-card dashboard-card--wide">
+        <header class="dashboard-card__head">
+          <div><span>{{ 'GJEOGRAFIA E ÇMIMIT' if lang == 'sq' else 'PRICE GEOGRAPHY' }}</span><h2>{{ 'Çmimi median sipas zonës' if lang == 'sq' else 'Median price by zone' }}</h2></div>
+        </header>
+        <div class="signal-canvas"><canvas id="chartZone"></canvas></div>
+      </article>
+
+      <article class="dashboard-card dashboard-card--orbit">
+        <header class="dashboard-card__head">
+          <div><span>{{ 'MADHËSIA VS ÇMIMI' if lang == 'sq' else 'SIZE VS PRICE' }}</span><h2>{{ 'Sipërfaqja vs Çmimi' if lang == 'sq' else 'Size vs price' }}</h2></div>
+        </header>
+        <div class="signal-canvas"><canvas id="chartSizePrice"></canvas></div>
+        <div class="deal-legend">
+          <div><i class="great"></i><span>{{ t.great_deal }}</span></div>
+          <div><i class="good"></i><span>{{ t.good_deal }}</span></div>
+          <div><i class="market"></i><span>{{ t.market_price }}</span></div>
+        </div>
+      </article>
+    </div>
+
     <article class="map-explorer" data-mode="light">
       <header class="map-explorer__head">
         <div><span>{{ 'EKSPLORO QYTETIN' if lang == 'sq' else 'EXPLORE THE CITY' }}</span><h2>{{ t.map_title }}</h2><p>{{ t.map_lead }}</p></div>
@@ -64,6 +85,26 @@
         <button data-map-band="80k_130k">€80–130k</button>
         <button data-map-band="130k_200k">€130–200k</button>
         <button data-map-band="over_200k">€200k+</button>
+      </div>
+      <div class="map-legend">
+        <div class="map-legend__group">
+          <span class="map-legend__title">{{ 'ÇMIMI (PIKAT)' if lang == 'sq' else 'PRICE (DOTS)' }}</span>
+          <div class="map-legend__row">
+            <i style="background:#f3a4bc"></i><span>&lt; €80k</span>
+            <i style="background:#ff4f87"></i><span>€80–130k</span>
+            <i style="background:#b72f5e"></i><span>€130–200k</span>
+            <i style="background:#531a30"></i><span>€200k+</span>
+          </div>
+        </div>
+        <div class="map-legend__group">
+          <span class="map-legend__title">{{ 'DENSITETI (CLUSTER)' if lang == 'sq' else 'DENSITY (CLUSTERS)' }}</span>
+          <div class="map-legend__row">
+            <i style="background:#f3a4bc"></i><span>1–4 {{ 'shtëpi' if lang == 'sq' else 'homes' }}</span>
+            <i style="background:#ff4f87"></i><span>5–9</span>
+            <i style="background:#b72f5e"></i><span>10–19</span>
+            <i style="background:#531a30"></i><span>20+</span>
+          </div>
+        </div>
       </div>
       <div id="map" data-view-label="{{ t.view_listing }}"></div>
     </article>

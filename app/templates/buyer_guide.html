@@ -4,6 +4,7 @@
 {% block content %}
 <section class="guide-hero">
   <div class="guide-hero__pattern"></div>
+  <img class="guide-hero__photo" src="{{ url_for('static', filename='images/editorial/buyer-visit.webp') }}" alt="{{ 'Vizitë në pronë' if lang == 'sq' else 'Property viewing' }}">
   <div class="shell guide-hero__inner">
     <p class="eyebrow"><span></span>{{ 'GUIDA E BLERËSIT · SHQIPËRI' if lang == 'sq' else 'BUYER GUIDE · ALBANIA' }}</p>
     <h1>{{ t.documents_title }}</h1>

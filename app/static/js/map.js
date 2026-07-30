@@ -4,27 +4,20 @@
   if (typeof L === "undefined" || !mapNode) return;
 
   const priceColors = {
-    under_80k: "#b8ff55",
-    "80k_130k": "#8f7cff",
-    "130k_200k": "#ffb84d",
-    over_200k: "#ff647c"
-  };
-  const dealColors = {
-    great: "#b8ff55",
-    good: "#ffd166",
-    bad: "#ff647c",
-    unknown: "#b7b9c7"
+    under_80k: "#f3a4bc",
+    "80k_130k": "#ff4f87",
+    "130k_200k": "#b72f5e",
+    over_200k: "#531a30"
   };
   const tileUrls = {
-    midnight: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    paper: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    deal: "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+    dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    light: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
   };
 
   const map = L.map(mapNode, { scrollWheelZoom: false, zoomControl: false }).setView([41.3275, 19.8187], 12);
   L.control.zoom({ position: "bottomright" }).addTo(map);
 
-  let mode = "midnight";
+  let mode = "light";
   let activeBand = "all";
   let tileLayer = L.tileLayer(tileUrls[mode], {
     attribution: "© OpenStreetMap © CARTO",
@@ -46,13 +39,11 @@
   const popupLabel = mapNode.dataset.viewLabel || "View listing";
 
   function markerFor(point) {
-    const fill = mode === "deal"
-      ? (dealColors[point.grade] || dealColors.unknown)
-      : (priceColors[point.band] || "#8f7cff");
+    const fill = priceColors[point.band] || "#ff4f87";
     const marker = L.circleMarker([point.lat, point.lng], {
-      radius: mode === "deal" ? 7 : 6,
-      weight: 2,
-      color: mode === "paper" ? "#171715" : "#0d0d0c",
+      radius: 4,
+      weight: 1,
+      color: mode === "light" ? "#fffaf5" : "#11110f",
       fillColor: fill,
       fillOpacity: 0.94
     });

@@ -14,12 +14,12 @@
   <div class="shell">
     <div class="detail-topbar">
       <a href="{{ url_for('listings') }}">← {{ t.all_listings }}</a>
-      <span>PROPERTY PASSPORT · #{{ listing.listing_id }}</span>
+      <span>{{ 'PASAPORTA E PRONËS' if lang == 'sq' else 'PROPERTY PASSPORT' }} · #{{ listing.listing_id }}</span>
     </div>
 
     <div class="detail-visual {{ 'has-photo' if image else 'is-placeholder' }}">
       {% if image %}
-      <img src="{{ image }}" alt="{{ listing.address or t.address_missing }}">
+      <img src="{{ image }}" alt="{{ display_address(listing.address, lang) or t.address_missing }}">
       {% else %}
       <div class="detail-placeholder">
         <span>TIRANA/41</span>
@@ -36,7 +36,7 @@
           <div>
             <span>{{ t.asking_price }}</span>
             <h1>{% if listing.price_in_euro is not none %}€{{ "{:,.0f}".format(listing.price_in_euro) }}{% else %}—{% endif %}</h1>
-            <p>{{ listing.address or t.address_missing }}</p>
+            <p>{{ display_address(listing.address, lang) or t.address_missing }}</p>
           </div>
           <div class="detail-actions">
             <button class="favourite-button {{ 'is-saved' if is_favourite }}" type="button"
@@ -45,7 +45,7 @@
               <b>{{ '♥' if is_favourite else '♡' }}</b><span>{{ t.saved if is_favourite else t.save }}</span>
             </button>
             <button class="compare-button compare-button--large" type="button" data-compare
-                    data-id="{{ listing.listing_id }}" data-address="{{ listing.address or t.address_missing }}"
+                    data-id="{{ listing.listing_id }}" data-address="{{ display_address(listing.address, lang) or t.address_missing }}"
                     data-price="{{ listing.price_in_euro or 0 }}" data-sqm="{{ listing.square_meters or 0 }}"
                     data-grade="{{ deal_label(listing.deal_grade) }}"
                     data-url="{{ url_for('listing_detail', listing_id=listing.listing_id) }}">{{ t.compare }} +</button>
@@ -67,7 +67,7 @@
               {% else %}{{ t.market_price }}{% endif %}
             </b>
           </div>
-          <div class="passport-score"><span>DEAL SCORE</span><strong>{{ deal_score(listing) if deal_score(listing) is not none else '—' }}</strong><small>/100</small></div>
+          <div class="passport-score"><span>{{ 'PIKËT E OFERTËS' if lang == 'sq' else 'DEAL SCORE' }}</span><strong>{{ deal_score(listing) if deal_score(listing) is not none else '—' }}</strong><small>/100</small></div>
         </div>
 
         {% if listing.description %}

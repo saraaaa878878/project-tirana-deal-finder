@@ -9,9 +9,9 @@
 {% set image = listing_image(l) %}
 <article class="property-card property-card--{{ l.deal_grade }}">
   <div class="property-card__media {{ 'has-photo' if image else 'is-placeholder' }}">
-    <a href="{{ url_for('listing_detail', listing_id=l.listing_id) }}" aria-label="{{ l.address or t.address_missing }}">
+    <a href="{{ url_for('listing_detail', listing_id=l.listing_id) }}" aria-label="{{ display_address(l.address, lang) or t.address_missing }}">
       {% if image %}
-      <img src="{{ image }}" alt="{{ l.address or t.address_missing }}" loading="{{ 'eager' if position < 6 else 'lazy' }}">
+      <img src="{{ image }}" alt="{{ display_address(l.address, lang) or t.address_missing }}" loading="{{ 'eager' if position < 6 else 'lazy' }}">
       {% else %}
       <div class="property-placeholder">
         <span>TIRANA/41</span>
@@ -35,13 +35,13 @@
       <h3>{% if l.price_in_euro is not none %}€{{ "{:,.0f}".format(l.price_in_euro) }}{% else %}—{% endif %}</h3>
       <button class="compare-button" type="button" data-compare
               data-id="{{ l.listing_id }}"
-              data-address="{{ l.address or t.address_missing }}"
+              data-address="{{ display_address(l.address, lang) or t.address_missing }}"
               data-price="{{ l.price_in_euro or 0 }}"
               data-sqm="{{ l.square_meters or 0 }}"
               data-grade="{{ deal_label(l.deal_grade, t) }}"
               data-url="{{ url_for('listing_detail', listing_id=l.listing_id) }}">{{ t.compare }} +</button>
     </div>
-    <a class="property-card__address" href="{{ url_for('listing_detail', listing_id=l.listing_id) }}">{{ l.address or t.address_missing }}</a>
+    <a class="property-card__address" href="{{ url_for('listing_detail', listing_id=l.listing_id) }}">{{ display_address(l.address, lang) or t.address_missing }}</a>
     <div class="property-card__signal">
       {% if l.predicted_price %}
       <span>{{ t.estimated }} €{{ "{:,.0f}".format(l.predicted_price) }}</span>
@@ -51,9 +51,9 @@
     </div>
     <ul class="property-specs">
       <li><b>{{ l.square_meters|int if l.square_meters is not none else '—' }}</b><span>m²</span></li>
-      <li><b>{{ l.bedrooms|int if l.bedrooms is not none else '—' }}</b><span>BD</span></li>
-      <li><b>{{ l.bathrooms|int if l.bathrooms is not none else '—' }}</b><span>BA</span></li>
-      <li><b>{{ l.floor|int if l.floor is not none else '—' }}</b><span>FL</span></li>
+      <li><b>{{ l.bedrooms|int if l.bedrooms is not none else '—' }}</b><span>{{ 'DH' if lang == 'sq' else 'BD' }}</span></li>
+      <li><b>{{ l.bathrooms|int if l.bathrooms is not none else '—' }}</b><span>{{ 'BN' if lang == 'sq' else 'BA' }}</span></li>
+      <li><b>{{ l.floor|int if l.floor is not none else '—' }}</b><span>{{ 'KT' if lang == 'sq' else 'FL' }}</span></li>
     </ul>
   </div>
 </article>

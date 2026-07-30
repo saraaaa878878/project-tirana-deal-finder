@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_cards.html" import cards with context %}
-{% block title %}TIRANA/41 — {{ 'Inteligjencë pronash' if lang == 'sq' else 'Property intelligence' }}{% endblock %}
+{% block title %}TIRANA/41 — {{ 'Prona në Tiranë' if lang == 'sq' else 'Homes in Tirana' }}{% endblock %}
 
 {% block content %}
 <section class="home-hero">
@@ -9,7 +9,7 @@
   <div class="hero-orbit hero-orbit--two"></div>
   <div class="shell home-hero__grid">
     <div class="home-hero__copy">
-      <p class="eyebrow"><span></span>{{ t.hero_eyebrow }}</p>
+      <p class="eyebrow"><span></span>{{ '4,505 PRONA · TIRANË' if lang == 'sq' else '4,505 HOMES · TIRANA' }}</p>
       <h1>
         <span>{{ t.hero_title_top }}</span>
         <em>{{ t.hero_title_bottom }}</em>
@@ -23,16 +23,17 @@
 
     <div class="hero-gallery">
       <figure class="hero-gallery__main">
-        <img src="{{ url_for('static', filename='images/properties/property-19-ringside-residence.webp') }}" alt="Tirana residence">
-        <figcaption><span>TIRANA/41</span><b>€180K?</b></figcaption>
+        <img src="{{ url_for('static', filename='images/editorial/hero-architecture.webp') }}" alt="{{ 'Arkitekturë bashkëkohore' if lang == 'sq' else 'Contemporary architecture' }}">
+        <figcaption><span>TIRANA/41</span><b>41° N</b></figcaption>
+        <div class="hero-playful">{{ 'BALLKON I BUKUR. PO A VLEN €180K?' if lang == 'sq' else 'NICE BALCONY. BUT IS IT WORTH €180K?' }}</div>
       </figure>
       <figure class="hero-gallery__side">
-        <img src="{{ url_for('static', filename='images/properties/property-20-foto-janku.webp') }}" alt="Tirana apartment interior">
+        <img src="{{ url_for('static', filename='images/editorial/tirana-opera.webp') }}" alt="{{ 'Tirana dhe Opera' if lang == 'sq' else 'Tirana and the Opera' }}">
       </figure>
       <div class="hero-gallery__stamp">
         <svg viewBox="0 0 100 100" aria-hidden="true">
           <path id="circlePath" d="M50,50 m-34,0 a34,34 0 1,1 68,0 a34,34 0 1,1 -68,0" fill="none"/>
-          <text><textPath href="#circlePath">SEE BEYOND THE ASKING PRICE · </textPath></text>
+          <text><textPath href="#circlePath">{{ 'SHIKO PËRTEJ ÇMIMIT · ' if lang == 'sq' else 'SEE BEYOND THE ASKING PRICE · ' }}</textPath></text>
         </svg>
         <span>↘</span>
       </div>
@@ -64,23 +65,27 @@
   <div class="shell home-market__grid">
     <div class="home-market__copy">
       <span>{{ 'TREGU NË NJË PAMJE' if lang == 'sq' else 'THE MARKET AT A GLANCE' }}</span>
-      <h2>{{ 'Të dhënat që e bëjnë tregun më të qartë.' if lang == 'sq' else 'Market data, made clearer.' }}</h2>
+      <h2>{{ 'SA KUSHTON TIRANA?' if lang == 'sq' else 'WHAT DOES TIRANA COST?' }}</h2>
       <p>{{ 'Shpërndarje çmimesh, sinjale oferte dhe çdo pikë në hartë.' if lang == 'sq' else 'Price distributions, deal signals and every point on the map.' }}</p>
       <a class="text-arrow" href="{{ url_for('analytics') }}">{{ 'Hap pamjen e tregut' if lang == 'sq' else 'Open market view' }} ↗</a>
     </div>
-    <div class="mini-chart" aria-hidden="true">
-      <span style="--h:28%"></span><span style="--h:46%"></span><span style="--h:78%"></span>
-      <span style="--h:94%"></span><span style="--h:68%"></span><span style="--h:51%"></span>
-      <span style="--h:35%"></span><span style="--h:22%"></span>
-      <b>€ / m²</b>
-    </div>
+    <a class="market-editorial" href="{{ url_for('analytics') }}">
+      <img src="{{ url_for('static', filename='images/editorial/tirana-market-night.webp') }}" alt="{{ 'Sheshi Skënderbej në mbrëmje' if lang == 'sq' else 'Skanderbeg Square at night' }}">
+      <span class="market-editorial__coordinate">41.3275° N · 19.8187° E</span>
+      <span class="market-editorial__action">{{ 'HAP PAMJEN E TREGUT' if lang == 'sq' else 'OPEN MARKET VIEW' }} ↗</span>
+      <div class="market-editorial__ticker">
+        <span><b>{{ "{:,}".format(stats.total) }}</b>{{ 'PRONA' if lang == 'sq' else 'LISTINGS' }}</span>
+        <span><b>€{{ "{:,}".format(stats.median_ppsqm) }}</b>{{ 'MEDIANA / M²' if lang == 'sq' else 'MEDIAN / M²' }}</span>
+        <span><b>{{ stats.great_deals }}</b>{{ 'OFERTA TË SHKËLQYERA' if lang == 'sq' else 'GREAT DEALS' }}</span>
+      </div>
+    </a>
   </div>
 </section>
 
 <section class="toolkit">
   <div class="shell">
     <div class="section-title section-title--light">
-      <div><span>{{ 'MJETET E BLERËSIT' if lang == 'sq' else 'BUYER TOOLS' }}</span><h2>{{ 'Nga kërkimi te çelësat.' if lang == 'sq' else 'From search to keys.' }}</h2></div>
+      <div><span>{{ 'MJETET E BLERËSIT' if lang == 'sq' else 'BUYER TOOLS' }}</span><h2>{{ 'Nga kërkimi për shtëpi te çelësat.' if lang == 'sq' else 'From searching for a home to the keys.' }}</h2></div>
     </div>
     <div class="toolkit-grid">
       <a href="{{ url_for('mortgage') }}">

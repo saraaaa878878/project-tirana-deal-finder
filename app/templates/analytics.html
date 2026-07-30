@@ -4,10 +4,11 @@
 {% block content %}
 <section class="market-hero">
   <div class="market-hero__mesh"></div>
+  <img class="market-hero__photo" src="{{ url_for('static', filename='images/editorial/tirana-plaza-night.webp') }}" alt="">
   <div class="shell">
     <div class="market-live"><i></i>{{ 'TREGU I TIRANËS' if lang == 'sq' else 'TIRANA MARKET' }}<span>41.3275° N</span></div>
     <div class="market-hero__head">
-      <h1>{{ 'TREGU I PRONAVE' if lang == 'sq' else 'TIRANA PROPERTY' }}<br><em>{{ 'NË TIRANË.' if lang == 'sq' else 'MARKET.' }}</em></h1>
+      <h1>{{ 'TIRANA' }}<br><em>{{ 'NË NUMRA.' if lang == 'sq' else 'IN NUMBERS.' }}</em></h1>
       <p>{{ 'Çmime, tendenca dhe sinjale nga tregu i pronave në Tiranë.' if lang == 'sq' else 'Prices, patterns and property signals across Tirana.' }}</p>
     </div>
 
@@ -15,7 +16,7 @@
       <article><span>{{ 'PRONA' if lang == 'sq' else 'LISTINGS' }}</span><b>{{ "{:,}".format(stats.total) }}</b><small>{{ 'në analizë' if lang == 'sq' else 'in view' }}</small></article>
       <article><span>{{ 'ÇMIMI MEDIAN' if lang == 'sq' else 'MEDIAN PRICE' }}</span><b>€{{ "{:,}".format(stats.median_price) }}</b><small>{{ 'çmim i kërkuar' if lang == 'sq' else 'asking price' }}</small></article>
       <article><span>{{ 'VLERA / M²' if lang == 'sq' else 'VALUE / M²' }}</span><b>€{{ "{:,}".format(stats.median_ppsqm) }}</b><small>{{ 'mediana' if lang == 'sq' else 'median' }}</small></article>
-      <article class="market-kpis__accent"><span>{{ 'OFERTA TË SHKËLQYERA' if lang == 'sq' else 'GREAT DEALS' }}</span><b>{{ stats.by_grade.great }}</b><small>{{ 'të identifikuara' if lang == 'sq' else 'identified' }}</small></article>
+      <article><span>{{ 'OFERTA TË SHKËLQYERA' if lang == 'sq' else 'GREAT DEALS' }}</span><b>{{ stats.by_grade.great }}</b><small>{{ 'të identifikuara' if lang == 'sq' else 'identified' }}</small></article>
     </div>
   </div>
 </section>
@@ -49,13 +50,12 @@
       </article>
     </div>
 
-    <article class="map-explorer">
+    <article class="map-explorer" data-mode="light">
       <header class="map-explorer__head">
         <div><span>{{ 'EKSPLORO QYTETIN' if lang == 'sq' else 'EXPLORE THE CITY' }}</span><h2>{{ t.map_title }}</h2><p>{{ t.map_lead }}</p></div>
         <div class="map-modes" role="group" aria-label="Map style">
-          <button class="is-active" data-map-mode="midnight">{{ t.midnight }}</button>
-          <button data-map-mode="paper">{{ t.paper }}</button>
-          <button data-map-mode="deal">{{ t.deal_heat }}</button>
+          <button class="is-active" data-map-mode="light">{{ 'LIGHT' }}</button>
+          <button data-map-mode="dark">{{ 'DARK' }}</button>
         </div>
       </header>
       <div class="map-price-filters">

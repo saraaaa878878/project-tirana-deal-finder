@@ -4,6 +4,7 @@
 {% block content %}
 <section class="mortgage-page">
   <div class="mortgage-page__line"></div>
+  <img class="mortgage-page__photo" src="{{ url_for('static', filename='images/editorial/interior-night.webp') }}" alt="{{ 'Interier apartamenti në mbrëmje' if lang == 'sq' else 'Apartment interior at night' }}">
   <div class="shell">
     <div class="mortgage-head">
       <p class="eyebrow"><span></span>{{ 'LLOGARITËSI I KREDISË' if lang == 'sq' else 'MORTGAGE CALCULATOR' }}</p>

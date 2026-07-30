@@ -3,11 +3,17 @@
 
 {% block content %}
 <section class="auth-page">
-  <div class="auth-visual">
-    <img src="{{ url_for('static', filename='images/properties/property-18-misto-mame.webp') }}" alt="Tirana residence">
+  <div class="auth-visual auth-visual--artwork">
+    <img class="auth-visual__art"
+         src="{{ url_for('static', filename='images/editorial/signup-albanian-art.webp') }}"
+         alt="{{ 'Ilustrim shqiptar' if lang == 'sq' else 'Albanian illustration' }}">
     <div class="auth-visual__overlay">
       <span>TIRANA/41</span>
+      {% if mode == 'register' %}
+      <h2>{{ 'Shtëpi në Tiranë. Zgjedhje që janë të tuat.' if lang == 'sq' else 'Homes in Tirana. Choices that are yours.' }}</h2>
+      {% else %}
       <h2>{{ 'Lista jote e pronave.' if lang == 'sq' else 'Your property shortlist.' }}</h2>
+      {% endif %}
       <p>41.3275° N · 19.8187° E</p>
     </div>
   </div>

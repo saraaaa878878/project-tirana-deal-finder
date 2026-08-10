@@ -15,4 +15,6 @@ models/*.joblib
 
 # os / editor
 .DS_Store
-.vscode/
+.vscode/app/instance/tirana_deals.sqlite3
+models/tirana_price_catboost.cbm
+models/tirana_price_metrics.json

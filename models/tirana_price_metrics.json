@@ -1,8 +1,0 @@
-{
-  "best_model": "catboost_fast_smoke",
-  "best_holdout_mae": 37641.31100586335,
-  "target_mode": "raw",
-  "training_rows": 4329,
-  "features": 64,
-  "candidates": []
-}
